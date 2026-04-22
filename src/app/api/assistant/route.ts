@@ -145,10 +145,47 @@ function fallbackReply(message: string): string {
 Reformule ta question ou clique sur /contact pour parler au support 🙂`;
 }
 
-async function callOpenAI(message: string, history: ChatMessage[]): Promise<string | null> {
-  const key = process.env.OPENAI_API_KEY;
-  if (!key) return null;
+type Provider = {
+  name: string;
+  baseUrl: string;
+  key: string | undefined;
+  model: string;
+};
 
+function buildProviders(): Provider[] {
+  return [
+    {
+      name: "groq",
+      baseUrl: "https://api.groq.com/openai/v1",
+      key: process.env.GROQ_API_KEY,
+      model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+    },
+    {
+      name: "cerebras",
+      baseUrl: "https://api.cerebras.ai/v1",
+      key: process.env.CEREBRAS_API_KEY,
+      model: process.env.CEREBRAS_MODEL || "llama-3.3-70b",
+    },
+    {
+      name: "gemini",
+      baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
+      key: process.env.GEMINI_API_KEY,
+      model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
+    },
+    {
+      name: "openai",
+      baseUrl: (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, ""),
+      key: process.env.OPENAI_API_KEY,
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+    },
+  ].filter((p) => Boolean(p.key)) as Provider[];
+}
+
+async function callProvider(
+  p: Provider,
+  message: string,
+  history: ChatMessage[],
+): Promise<string | null> {
   const messages = [
     { role: "system" as const, content: SYSTEM_PROMPT },
     ...history.slice(-8).map((h) => ({
@@ -159,17 +196,16 @@ async function callOpenAI(message: string, history: ChatMessage[]): Promise<stri
   ];
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20_000);
+  const timeout = setTimeout(() => controller.abort(), 15_000);
   try {
-    const baseUrl = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "");
-    const res = await fetch(`${baseUrl}/chat/completions`, {
+    const res = await fetch(`${p.baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
-        authorization: `Bearer ${key}`,
+        authorization: `Bearer ${p.key}`,
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+        model: p.model,
         messages,
         temperature: 0.3,
         max_tokens: 500,
@@ -177,7 +213,9 @@ async function callOpenAI(message: string, history: ChatMessage[]): Promise<stri
       signal: controller.signal,
     });
     clearTimeout(timeout);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      return null;
+    }
     const data = await res.json();
     const text = data?.choices?.[0]?.message?.content;
     return typeof text === "string" && text.trim().length > 0 ? text.trim() : null;
@@ -185,6 +223,15 @@ async function callOpenAI(message: string, history: ChatMessage[]): Promise<stri
     clearTimeout(timeout);
     return null;
   }
+}
+
+async function tryAll(message: string, history: ChatMessage[]): Promise<{ reply: string | null; provider: string | null }> {
+  const providers = buildProviders();
+  for (const p of providers) {
+    const reply = await callProvider(p, message, history);
+    if (reply) return { reply, provider: p.name };
+  }
+  return { reply: null, provider: null };
 }
 
 export async function POST(req: Request) {
@@ -208,9 +255,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ reply: "Dis-moi ce que tu cherches 🙂" });
     }
 
-    const llm = await callOpenAI(message, history);
-    const reply = llm ?? fallbackReply(message);
-    return NextResponse.json({ reply, source: llm ? "llm" : "rules" });
+    const { reply, provider } = await tryAll(message, history);
+    const finalReply = reply ?? fallbackReply(message);
+    return NextResponse.json({
+      reply: finalReply,
+      source: provider ?? "rules",
+    });
   } catch {
     return NextResponse.json(
       { reply: "Je n'ai pas pu traiter ta demande, réessaie." },
