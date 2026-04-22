@@ -35,7 +35,7 @@ export function EbookCard({ data }: { data: EbookCardData }) {
           loading="lazy"
         />
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-medium text-foreground">
+          <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-medium text-zinc-900">
             <BookOpen size={10} /> Ebook
           </span>
         </div>
