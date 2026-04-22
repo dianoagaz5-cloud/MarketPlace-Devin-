@@ -23,7 +23,11 @@ export async function GET(
   }
 
   const updated = await prisma.ebookDownloadToken.updateMany({
-    where: { id: tok.id, uses: { lt: tok.maxUses } },
+    where: {
+      id: tok.id,
+      uses: { lt: tok.maxUses },
+      expiresAt: { gt: new Date() },
+    },
     data: { uses: { increment: 1 } },
   });
   if (updated.count === 0) {

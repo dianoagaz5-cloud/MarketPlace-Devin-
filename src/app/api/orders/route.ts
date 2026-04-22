@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   const { items, contact, payment } = parsed.data;
 
   let user = await getCurrentUser();
-  let guestSessionCreated = false;
+  const isGuest = !user;
   if (!user) {
     if (!contact.email) {
       return NextResponse.json(
@@ -67,21 +67,6 @@ export async function POST(req: Request) {
         },
         { status: 409 },
       );
-    }
-    {
-      const created = await prisma.user.create({
-        data: {
-          email: contact.email,
-          name: contact.fullName,
-          phone: contact.phone,
-          city: contact.city,
-          passwordHash: await hashPassword(crypto.randomBytes(16).toString("hex")),
-          role: "CLIENT",
-        },
-        include: { seller: true },
-      });
-      user = created;
-      guestSessionCreated = true;
     }
   }
 
@@ -160,6 +145,23 @@ export async function POST(req: Request) {
   const total = subtotal + shipping;
 
   const commission = computeCommission(subtotal, settings.commissionPercent);
+
+  if (isGuest) {
+    user = await prisma.user.create({
+      data: {
+        email: contact.email!,
+        name: contact.fullName,
+        phone: contact.phone,
+        city: contact.city,
+        passwordHash: await hashPassword(crypto.randomBytes(16).toString("hex")),
+        role: "CLIENT",
+      },
+      include: { seller: true },
+    });
+  }
+  if (!user) {
+    return NextResponse.json({ ok: false, error: "Utilisateur introuvable." }, { status: 500 });
+  }
 
   const result = await initiateMockPayment({
     provider: payment.provider as PaymentProvider,
@@ -245,6 +247,9 @@ export async function POST(req: Request) {
             note: `${contact.note ?? ""}\n[Stock insuffisant sur ${name} — commande à revalider]`.trim(),
           },
         });
+        if (isGuest && user) {
+          await createSession(user);
+        }
         return NextResponse.json(
           { ok: false, error: `Stock insuffisant pour ${name}`, orderId: order.id },
           { status: 409 },
@@ -254,7 +259,7 @@ export async function POST(req: Request) {
     }
   }
 
-  if (guestSessionCreated && user) {
+  if (isGuest && user) {
     await createSession(user);
   }
 
