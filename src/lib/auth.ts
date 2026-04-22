@@ -6,9 +6,18 @@ import type { User } from "@prisma/client";
 
 export type UserRole = "CLIENT" | "VENDEUR" | "ADMIN";
 
-const SECRET = new TextEncoder().encode(
-  process.env.AUTH_SECRET || "dev-secret-change-me-in-production-please-use-32-chars-or-more",
-);
+function resolveSecret(): string {
+  const fromEnv = process.env.AUTH_SECRET;
+  if (fromEnv && fromEnv.length >= 32) return fromEnv;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "AUTH_SECRET must be set to a value of at least 32 characters in production.",
+    );
+  }
+  return "dev-secret-change-me-in-production-please-use-32-chars-or-more";
+}
+
+const SECRET = new TextEncoder().encode(resolveSecret());
 
 const COOKIE_NAME = "mkt_session";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;

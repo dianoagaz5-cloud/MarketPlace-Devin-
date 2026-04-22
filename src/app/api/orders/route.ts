@@ -44,10 +44,22 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, error: "Données invalides." }, { status: 400 });
   }
-  const { items, contact, payment } = parsed.data;
+  const { items: rawItems, contact, payment } = parsed.data;
   if (contact.email) {
     contact.email = contact.email.toLowerCase();
   }
+
+  const aggregated = new Map<string, { kind: "PRODUCT" | "SERVICE" | "EBOOK"; id: string; quantity: number }>();
+  for (const it of rawItems) {
+    const key = `${it.kind}:${it.id}`;
+    const prev = aggregated.get(key);
+    if (prev) {
+      if (it.kind === "PRODUCT") prev.quantity += it.quantity;
+    } else {
+      aggregated.set(key, { kind: it.kind, id: it.id, quantity: it.kind === "PRODUCT" ? it.quantity : 1 });
+    }
+  }
+  const items = Array.from(aggregated.values());
 
   let user = await getCurrentUser();
   const isGuest = !user;
