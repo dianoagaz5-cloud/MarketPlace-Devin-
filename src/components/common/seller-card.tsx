@@ -23,14 +23,12 @@ export function SellerCard({ data }: { data: SellerCardData }) {
       className="overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:shadow-md"
     >
       <Link href={`/vendeurs/${data.slug}`} className="block">
-        <div className="relative h-24 bg-gradient-to-br from-primary/30 to-accent/30">
+        <div className="relative h-24 bg-gradient-to-br from-primary/25 to-accent/25">
           {data.banner && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={data.banner} alt="" className="h-full w-full object-cover" />
           )}
-        </div>
-        <div className="-mt-8 flex items-end gap-3 px-4">
-          <div className="h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-muted">
+          <div className="absolute -bottom-8 left-4 h-16 w-16 overflow-hidden rounded-full border-4 border-card bg-muted shadow-sm">
             {data.avatar ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={data.avatar} alt={data.shopName} className="h-full w-full object-cover" />
@@ -40,16 +38,16 @@ export function SellerCard({ data }: { data: SellerCardData }) {
               </div>
             )}
           </div>
-          <div className="pb-2">
-            <h3 className="line-clamp-1 text-sm font-semibold">{data.shopName}</h3>
-            <p className="flex items-center gap-1 text-xs text-muted-foreground">
-              <MapPin size={10} /> {data.city}
-            </p>
-          </div>
         </div>
-        <div className="flex items-center justify-between px-4 pb-4 pt-2">
-          <StarRating value={data.rating} size={12} />
-          <span className="text-xs text-muted-foreground">{data.productCount} produits</span>
+        <div className="px-4 pb-4 pt-10">
+          <h3 className="line-clamp-1 text-sm font-semibold">{data.shopName}</h3>
+          <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+            <MapPin size={10} /> {data.city}
+          </p>
+          <div className="mt-3 flex items-center justify-between">
+            <StarRating value={data.rating} size={12} />
+            <span className="text-xs text-muted-foreground">{data.productCount} produits</span>
+          </div>
         </div>
       </Link>
     </motion.div>

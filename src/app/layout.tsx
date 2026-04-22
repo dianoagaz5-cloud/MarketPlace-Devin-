@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { AIAssistant } from "@/components/common/ai-assistant";
+import { ThemeProvider } from "@/components/common/theme-provider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -37,14 +38,23 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');var m=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(!t&&m)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className={`${inter.variable} font-sans pb-16 md:pb-0`}>
-        <Header />
-        <main className="min-h-[60vh]">{children}</main>
-        <Footer />
-        <MobileBottomNav />
-        <AIAssistant />
-        <Toaster position="top-center" richColors closeButton />
+        <ThemeProvider>
+          <Header />
+          <main className="min-h-[60vh]">{children}</main>
+          <Footer />
+          <MobileBottomNav />
+          <AIAssistant />
+          <Toaster position="top-center" richColors closeButton />
+        </ThemeProvider>
       </body>
     </html>
   );

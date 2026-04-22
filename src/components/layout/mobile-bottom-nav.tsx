@@ -19,7 +19,7 @@ export function MobileBottomNav() {
   const { count } = useCart();
 
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t bg-white/95 backdrop-blur">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t bg-background/95 backdrop-blur">
       <div className="grid grid-cols-5 py-1">
         {items.map((it) => {
           const active = it.href === "/" ? pathname === "/" : pathname.startsWith(it.href);

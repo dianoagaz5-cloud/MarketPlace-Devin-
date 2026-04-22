@@ -82,7 +82,7 @@ export function AIAssistant() {
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              className="fixed z-50 right-4 left-4 bottom-20 md:bottom-6 md:right-6 md:left-auto md:w-[380px] h-[500px] max-h-[80vh] rounded-2xl bg-white shadow-2xl flex flex-col overflow-hidden border"
+              className="fixed z-50 right-4 left-4 bottom-20 md:bottom-6 md:right-6 md:left-auto md:w-[380px] h-[500px] max-h-[80vh] rounded-2xl bg-card shadow-2xl flex flex-col overflow-hidden border"
             >
               <div className="flex items-center justify-between bg-gradient-to-r from-primary to-accent text-white px-4 py-3">
                 <div className="flex items-center gap-2">
@@ -100,14 +100,14 @@ export function AIAssistant() {
                 <button onClick={() => setOpen(false)} aria-label="Fermer"><X size={18} /></button>
               </div>
 
-              <div ref={listRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-zinc-50">
+              <div ref={listRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-muted/40">
                 {messages.map((m, i) => (
                   <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                     <div
                       className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm whitespace-pre-wrap ${
                         m.role === "user"
                           ? "bg-primary text-white rounded-br-md"
-                          : "bg-white border rounded-bl-md"
+                          : "bg-card border rounded-bl-md"
                       }`}
                     >
                       {m.content}
@@ -116,7 +116,7 @@ export function AIAssistant() {
                 ))}
                 {pending && (
                   <div className="flex justify-start">
-                    <div className="bg-white border rounded-2xl rounded-bl-md px-3.5 py-2 text-sm">
+                    <div className="bg-card border rounded-2xl rounded-bl-md px-3.5 py-2 text-sm">
                       <span className="inline-flex gap-1">
                         <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-pulse" />
                         <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-pulse [animation-delay:150ms]" />
@@ -131,7 +131,7 @@ export function AIAssistant() {
                       <button
                         key={q}
                         onClick={() => send(q)}
-                        className="w-full text-left rounded-lg border bg-white px-3 py-2 text-xs hover:border-primary transition"
+                        className="w-full text-left rounded-lg border bg-card px-3 py-2 text-xs hover:border-primary transition"
                       >
                         {q}
                       </button>
@@ -145,7 +145,7 @@ export function AIAssistant() {
                   e.preventDefault();
                   send(input);
                 }}
-                className="flex items-center gap-2 border-t p-3 bg-white"
+                className="flex items-center gap-2 border-t p-3 bg-card"
               >
                 <input
                   value={input}

@@ -6,7 +6,7 @@ import { Search, Sparkles, TrendingUp, Store, BookOpen, Package } from "lucide-r
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-white">
+    <section className="relative overflow-hidden bg-background">
       <div className="hero-grid-bg absolute inset-0" />
       <div className="container relative grid gap-8 py-10 md:grid-cols-2 md:py-16 lg:py-20">
         <div className="flex flex-col justify-center">
@@ -14,7 +14,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex w-fit items-center gap-2 rounded-full border bg-white/80 px-3 py-1 text-xs font-medium text-primary"
+            className="inline-flex w-fit items-center gap-2 rounded-full border bg-card/80 px-3 py-1 text-xs font-medium text-primary"
           >
             <Sparkles size={12} /> La marketplace n°1 au Bénin
           </motion.div>
@@ -50,7 +50,7 @@ export function Hero() {
             <input
               name="q"
               placeholder="Rechercher un produit, service, ebook…"
-              className="h-14 w-full rounded-full border bg-white pl-12 pr-32 text-sm shadow-sm focus:border-primary"
+              className="h-14 w-full rounded-full border bg-card pl-12 pr-32 text-sm shadow-sm focus:border-primary"
             />
             <button
               type="submit"
@@ -66,11 +66,11 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.32 }}
             className="mt-4 flex flex-wrap gap-2"
           >
-            <Link href="/boutique" className="rounded-full border bg-white px-3 py-1 text-xs hover:border-primary">Mode</Link>
-            <Link href="/boutique" className="rounded-full border bg-white px-3 py-1 text-xs hover:border-primary">Électronique</Link>
-            <Link href="/services" className="rounded-full border bg-white px-3 py-1 text-xs hover:border-primary">Dév web</Link>
-            <Link href="/ebooks" className="rounded-full border bg-white px-3 py-1 text-xs hover:border-primary">Business</Link>
-            <Link href="/boutique" className="rounded-full border bg-white px-3 py-1 text-xs hover:border-primary">Beauté</Link>
+            <Link href="/boutique" className="rounded-full border bg-card px-3 py-1 text-xs hover:border-primary">Mode</Link>
+            <Link href="/boutique" className="rounded-full border bg-card px-3 py-1 text-xs hover:border-primary">Électronique</Link>
+            <Link href="/services" className="rounded-full border bg-card px-3 py-1 text-xs hover:border-primary">Dév web</Link>
+            <Link href="/ebooks" className="rounded-full border bg-card px-3 py-1 text-xs hover:border-primary">Business</Link>
+            <Link href="/boutique" className="rounded-full border bg-card px-3 py-1 text-xs hover:border-primary">Beauté</Link>
           </motion.div>
 
           <motion.div
@@ -81,7 +81,7 @@ export function Hero() {
           >
             <Link
               href="/inscription?role=VENDEUR"
-              className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-3 text-sm font-medium text-white hover:bg-zinc-800 transition"
+              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background hover:opacity-90 transition"
             >
               <Store size={16} /> Commencer à vendre
             </Link>
@@ -176,7 +176,7 @@ function FloatingCard({
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay }}
-      className={`${className} rounded-2xl bg-white border shadow-xl overflow-hidden animate-float`}
+      className={`${className} rounded-2xl bg-card border shadow-xl overflow-hidden animate-float`}
       style={{ animationDelay: `${delay}s` }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}

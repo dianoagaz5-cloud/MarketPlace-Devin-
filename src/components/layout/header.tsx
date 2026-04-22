@@ -22,6 +22,7 @@ import {
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/common/theme-toggle";
 
 type MeUser = {
   id: string;
@@ -67,14 +68,14 @@ export function Header() {
   return (
     <>
       {/* Top announcement bar */}
-      <div className="bg-zinc-900 text-white text-xs">
+      <div className="bg-foreground text-background text-xs">
         <div className="container flex items-center justify-between py-1.5">
           <span className="truncate">🇧🇯 Livraison partout au Bénin · Paiements MTN MoMo, Moov Money, Celtiis Cash</span>
-          <span className="hidden md:inline text-zinc-300">Support : +229 97 00 00 00</span>
+          <span className="hidden md:inline opacity-80">Support : +229 97 00 00 00</span>
         </div>
       </div>
 
-      <header className="sticky top-0 z-40 border-b bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
         <div className="container flex h-16 items-center gap-4">
           {/* Mobile burger */}
           <button
@@ -119,6 +120,7 @@ export function Header() {
 
           {/* Desktop actions */}
           <div className="ml-auto flex items-center gap-2">
+            <ThemeToggle />
             {/* Sell dropdown */}
             <div
               className="hidden md:block relative"
@@ -140,7 +142,7 @@ export function Header() {
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
-                    className="absolute right-0 top-full w-64 rounded-xl border bg-white shadow-lg overflow-hidden"
+                    className="absolute right-0 top-full w-64 rounded-xl border bg-card shadow-lg overflow-hidden"
                   >
                     <SellMenuItem
                       icon={<Package size={16} />}
@@ -198,7 +200,7 @@ export function Header() {
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
-                    className="absolute right-0 top-full mt-1 w-56 rounded-xl border bg-white shadow-lg overflow-hidden"
+                    className="absolute right-0 top-full mt-1 w-56 rounded-xl border bg-card shadow-lg overflow-hidden"
                   >
                     {me ? (
                       <>
@@ -238,7 +240,7 @@ export function Header() {
         </div>
 
         {/* Desktop nav */}
-        <nav className="hidden md:block border-t bg-white">
+        <nav className="hidden md:block border-t bg-background">
           <div className="container flex items-center gap-1 h-11 text-sm overflow-x-auto scrollbar-hide">
             {navLinks.map((l) => {
               const active = pathname === l.href || (l.href !== "/" && pathname.startsWith(l.href));
@@ -297,7 +299,7 @@ export function Header() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 28 }}
-              className="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-white shadow-xl md:hidden overflow-y-auto"
+              className="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-card shadow-xl md:hidden overflow-y-auto"
             >
               <div className="flex items-center justify-between border-b p-4">
                 <span className="font-bold">Menu</span>
