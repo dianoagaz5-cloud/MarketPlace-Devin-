@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, Headphones, Send, X } from "lucide-react";
+import { Bot, Send, X } from "lucide-react";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -37,10 +37,13 @@ export function AIAssistant() {
     setMessages((m) => [...m, { role: "user", content }]);
     setPending(true);
     try {
+      const history = messages
+        .slice(-8)
+        .map((m) => ({ role: m.role, content: m.content }));
       const res = await fetch("/api/assistant", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ message: content }),
+        body: JSON.stringify({ message: content, history }),
       });
       const data = await res.json();
       setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
@@ -65,7 +68,7 @@ export function AIAssistant() {
         whileTap={{ scale: 0.95 }}
         className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg grid place-items-center ring-4 ring-primary/15"
       >
-        <Headphones size={22} />
+        <Bot size={24} />
       </motion.button>
 
       <AnimatePresence>
