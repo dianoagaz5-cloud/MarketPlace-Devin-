@@ -117,3 +117,13 @@ input[type="search"]::-webkit-search-cancel-button {
     radial-gradient(circle at 20% 20%, hsl(var(--primary) / 0.12), transparent 50%),
     radial-gradient(circle at 80% 60%, hsl(var(--accent) / 0.10), transparent 50%);
 }
+
+/* Horizontal marquee */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+  will-change: transform;
+}
