@@ -21,9 +21,9 @@ export default async function EbooksPage({
     status: "APPROVED" as const,
     ...(q && {
       OR: [
-        { title: { contains: q } },
-        { description: { contains: q } },
-        { author: { contains: q } },
+        { title: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+        { author: { contains: q, mode: "insensitive" } },
       ],
     }),
     ...(selectedCat && { categoryId: selectedCat.id }),

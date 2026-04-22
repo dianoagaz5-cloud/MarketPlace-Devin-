@@ -24,8 +24,8 @@ export default async function BoutiquePage({
     status: "APPROVED" as const,
     ...(q && {
       OR: [
-        { name: { contains: q } },
-        { description: { contains: q } },
+        { name: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
       ],
     }),
     ...(selectedCat && { categoryId: selectedCat.id }),

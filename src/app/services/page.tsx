@@ -21,7 +21,10 @@ export default async function ServicesPage({
   const where = {
     status: "APPROVED" as const,
     ...(q && {
-      OR: [{ name: { contains: q } }, { description: { contains: q } }],
+      OR: [
+        { name: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+      ],
     }),
     ...(selectedCat && { categoryId: selectedCat.id }),
   };
