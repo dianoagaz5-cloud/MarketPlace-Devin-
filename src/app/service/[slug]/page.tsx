@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { AddToCartButton } from "@/components/common/add-to-cart-button";
 import { ChatWidget } from "@/components/common/chat-widget";
+import { ProductGallery } from "@/components/common/product-gallery";
 
 export const dynamic = "force-dynamic";
 
@@ -31,18 +32,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
 
       <div className="grid gap-8 md:grid-cols-[1.4fr_1fr]">
         <div>
-          <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-muted">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={images[0]} alt={service.name} className="h-full w-full object-cover" />
-          </div>
-          {images.length > 1 && (
-            <div className="mt-3 grid grid-cols-4 gap-2">
-              {images.slice(0, 4).map((img, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={i} src={img} alt="" className="aspect-video w-full object-cover rounded-lg border" />
-              ))}
-            </div>
-          )}
+          <ProductGallery images={images} name={service.name} />
 
           <h1 className="mt-6 text-2xl md:text-3xl font-bold">{service.name}</h1>
           <div className="mt-2 flex items-center gap-3 text-sm">

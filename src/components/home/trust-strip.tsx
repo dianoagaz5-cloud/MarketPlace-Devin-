@@ -14,7 +14,7 @@ export function TrustStrip() {
         {items.map((it) => {
           const Icon = it.icon;
           return (
-            <div key={it.title} className="rounded-xl border bg-white p-4 flex items-start gap-3">
+            <div key={it.title} className="rounded-xl border bg-card p-4 flex items-start gap-3">
               <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary grid place-items-center">
                 <Icon size={20} />
               </div>

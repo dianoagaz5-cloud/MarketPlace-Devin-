@@ -9,6 +9,7 @@ import { StarRating } from "@/components/ui/star-rating";
 import { AddToCartButton } from "@/components/common/add-to-cart-button";
 import { ChatWidget } from "@/components/common/chat-widget";
 import { ProductCard } from "@/components/common/product-card";
+import { ProductGallery } from "@/components/common/product-gallery";
 
 export const dynamic = "force-dynamic";
 
@@ -47,18 +48,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
       <div className="grid gap-8 md:grid-cols-2">
         <div>
-          <div className="aspect-square overflow-hidden rounded-2xl bg-muted">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={images[0]} alt={product.name} className="h-full w-full object-cover" />
-          </div>
-          {images.length > 1 && (
-            <div className="mt-3 grid grid-cols-5 gap-2">
-              {images.slice(0, 5).map((img, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={i} src={img} alt="" className="aspect-square w-full object-cover rounded-lg border" />
-              ))}
-            </div>
-          )}
+          <ProductGallery images={images} name={product.name} />
         </div>
 
         <div>

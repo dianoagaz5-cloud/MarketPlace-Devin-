@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { MediaUpload } from "@/components/common/media-upload";
 
 type Category = { id: string; name: string };
 
@@ -19,20 +20,20 @@ export function ListingForm({
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const [cover, setCover] = useState<string[]>([]);
+  const [ebookFile, setEbookFile] = useState<string[]>([]);
   const [form, setForm] = useState<Record<string, string>>({
     name: "",
     description: "",
     price: "",
     categoryId: categories[0]?.id ?? "",
-    images: "",
     stock: "0",
     comparePrice: "",
     negotiable: "false",
     deliveryDays: "",
     author: "",
     pages: "",
-    cover: "",
-    fileUrl: "",
   });
 
   function set<K extends string>(k: K, v: string) {
@@ -41,16 +42,27 @@ export function ListingForm({
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (kind !== "ebook" && images.length === 0) {
+      toast.error("Ajoutez au moins une image ou vidéo.");
+      return;
+    }
+    if (kind === "ebook") {
+      if (cover.length === 0) {
+        toast.error("Ajoutez une image de couverture.");
+        return;
+      }
+      if (ebookFile.length === 0) {
+        toast.error("Ajoutez le fichier PDF de l'ebook.");
+        return;
+      }
+    }
     setPending(true);
     const payload: Record<string, unknown> = {
       name: form.name,
       description: form.description,
       price: Number(form.price) || 0,
       categoryId: form.categoryId,
-      images: form.images
-        .split(/[\n,]+/)
-        .map((x) => x.trim())
-        .filter(Boolean),
+      images,
     };
     if (kind === "product") {
       payload.stock = Number(form.stock) || 0;
@@ -61,8 +73,9 @@ export function ListingForm({
     } else {
       payload.author = form.author;
       payload.pages = form.pages ? Number(form.pages) : undefined;
-      payload.cover = form.cover;
-      payload.fileUrl = form.fileUrl;
+      payload.cover = cover[0];
+      payload.fileUrl = ebookFile[0];
+      payload.images = images;
     }
 
     const res = await fetch(`/api/vendeur/${kind}`, {
@@ -84,7 +97,6 @@ export function ListingForm({
   }
 
   const nameLabel = kind === "ebook" ? "Titre" : "Nom";
-  const imageLabel = kind === "ebook" ? "Images additionnelles (optionnel)" : "Images (URLs, une par ligne)";
 
   return (
     <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border bg-card p-5">
@@ -157,23 +169,42 @@ export function ListingForm({
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label>URL couverture (image)</Label>
-            <Input value={form.cover} onChange={(e) => set("cover", e.target.value)} placeholder="https://..." required />
+            <Label>Couverture</Label>
+            <MediaUpload
+              kind="image"
+              value={cover}
+              onChange={setCover}
+              max={1}
+              label="Ajouter la couverture"
+              hint="JPG, PNG ou WebP · 8 Mo max"
+            />
           </div>
           <div className="space-y-1.5">
-            <Label>URL fichier PDF</Label>
-            <Input value={form.fileUrl} onChange={(e) => set("fileUrl", e.target.value)} placeholder="https://..." required />
+            <Label>Fichier PDF de l&apos;ebook</Label>
+            <MediaUpload
+              kind="pdf"
+              value={ebookFile}
+              onChange={setEbookFile}
+              max={1}
+              label="Ajouter le PDF"
+              hint="PDF uniquement · 8 Mo max"
+            />
           </div>
         </>
       )}
 
       <div className="space-y-1.5">
-        <Label>{imageLabel}</Label>
-        <Textarea
-          rows={3}
-          value={form.images}
-          onChange={(e) => set("images", e.target.value)}
-          placeholder="https://picsum.photos/seed/exemple/800/800"
+        <Label>
+          {kind === "ebook" ? "Images / vidéos supplémentaires (optionnel)" : "Photos et vidéos"}
+        </Label>
+        <MediaUpload
+          kind="image"
+          multiple
+          value={images}
+          onChange={setImages}
+          max={6}
+          label="Ajouter des photos ou vidéos"
+          hint="Jusqu'à 6 fichiers · Images 8 Mo · Vidéos MP4/WebM 30 Mo"
         />
       </div>
 

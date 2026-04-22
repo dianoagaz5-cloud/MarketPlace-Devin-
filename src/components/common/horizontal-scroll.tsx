@@ -20,14 +20,14 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
       </div>
       <button
         onClick={() => scroll(-1)}
-        className="hidden md:grid absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 place-items-center h-10 w-10 rounded-full bg-white border shadow opacity-0 group-hover:opacity-100 transition"
+        className="hidden md:grid absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 place-items-center h-10 w-10 rounded-full bg-card text-foreground border shadow opacity-0 group-hover:opacity-100 transition"
         aria-label="Précédent"
       >
         <ChevronLeft size={16} />
       </button>
       <button
         onClick={() => scroll(1)}
-        className="hidden md:grid absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 place-items-center h-10 w-10 rounded-full bg-white border shadow opacity-0 group-hover:opacity-100 transition"
+        className="hidden md:grid absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 place-items-center h-10 w-10 rounded-full bg-card text-foreground border shadow opacity-0 group-hover:opacity-100 transition"
         aria-label="Suivant"
       >
         <ChevronRight size={16} />

@@ -20,7 +20,7 @@ export async function CategoriesSection() {
           <Link
             key={c.id}
             href={`/boutique?cat=${c.slug}`}
-            className="group relative overflow-hidden rounded-2xl border bg-white p-4 text-center transition-all hover:-translate-y-1 hover:shadow-lg hover:border-primary"
+            className="group relative overflow-hidden rounded-2xl border bg-card p-4 text-center transition-all hover:-translate-y-1 hover:shadow-lg hover:border-primary"
           >
             <div className="mb-2 text-3xl transition-transform group-hover:scale-110">{c.icon}</div>
             <div className="text-sm font-semibold line-clamp-1">{c.name}</div>
