@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, Send, X, Sparkles } from "lucide-react";
+import { Bot, Headphones, Send, X } from "lucide-react";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -63,9 +63,9 @@ export function AIAssistant() {
         animate={{ scale: 1 }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 h-14 w-14 rounded-full bg-gradient-to-br from-primary to-accent text-white shadow-lg grid place-items-center"
+        className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg grid place-items-center ring-4 ring-primary/15"
       >
-        <Sparkles size={22} />
+        <Headphones size={22} />
       </motion.button>
 
       <AnimatePresence>
@@ -151,12 +151,12 @@ export function AIAssistant() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Pose ta question…"
-                  className="flex-1 h-10 rounded-full border bg-muted/40 px-3 text-sm focus:bg-background"
+                  className="flex-1 h-10 rounded-lg border bg-muted/40 px-3 text-sm focus:bg-background"
                 />
                 <button
                   type="submit"
                   disabled={pending || !input.trim()}
-                  className="h-10 w-10 rounded-full bg-primary text-white grid place-items-center disabled:opacity-50"
+                  className="h-10 w-10 rounded-lg bg-primary text-white grid place-items-center disabled:opacity-50"
                   aria-label="Envoyer"
                 >
                   <Send size={16} />

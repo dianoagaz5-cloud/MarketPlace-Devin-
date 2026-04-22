@@ -20,7 +20,7 @@
   --accent-foreground: 0 0% 100%;
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 98%;
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 }
 
 .dark {
@@ -98,6 +98,11 @@ html, body {
   background: linear-gradient(90deg, hsl(var(--muted)) 0%, hsl(var(--border)) 50%, hsl(var(--muted)) 100%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Space native search clear button from adjacent right-side UI */
+input[type="search"]::-webkit-search-cancel-button {
+  margin-right: 0.75rem;
 }
 
 /* Thin custom focus ring */

@@ -108,11 +108,11 @@ export function Header() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Rechercher des produits, services, ebooks…"
-              className="h-10 w-full rounded-full border border-input bg-muted/40 pl-9 pr-24 text-sm focus:bg-background transition"
+              className="h-10 w-full rounded-lg border border-input bg-muted/40 pl-9 pr-28 text-sm focus:bg-background transition"
             />
             <button
               type="submit"
-              className="absolute right-1 top-1 h-8 rounded-full bg-primary px-4 text-xs font-medium text-white hover:bg-primary/90 transition"
+              className="absolute right-1 top-1 h-8 rounded-md bg-primary px-4 text-xs font-medium text-white hover:bg-primary/90 transition"
             >
               Rechercher
             </button>
@@ -277,7 +277,7 @@ export function Header() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Rechercher…"
-              className="h-10 w-full rounded-full border border-input bg-muted/40 pl-9 pr-4 text-sm"
+              className="h-10 w-full rounded-lg border border-input bg-muted/40 pl-9 pr-4 text-sm"
             />
           </div>
         </form>

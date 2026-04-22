@@ -14,7 +14,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex w-fit items-center gap-2 rounded-full border bg-card/80 px-3 py-1 text-xs font-medium text-primary"
+            className="inline-flex w-fit items-center gap-2 rounded-md border bg-card/80 px-3 py-1 text-xs font-medium text-primary"
           >
             <Sparkles size={12} /> La marketplace n°1 au Bénin
           </motion.div>
@@ -50,11 +50,11 @@ export function Hero() {
             <input
               name="q"
               placeholder="Rechercher un produit, service, ebook…"
-              className="h-14 w-full rounded-full border bg-card pl-12 pr-32 text-sm shadow-sm focus:border-primary"
+              className="h-14 w-full rounded-xl border bg-card pl-12 pr-36 text-sm shadow-sm focus:border-primary"
             />
             <button
               type="submit"
-              className="absolute right-2 top-2 h-10 rounded-full bg-primary px-5 text-sm font-medium text-white hover:bg-primary/90"
+              className="absolute right-2 top-2 h-10 rounded-lg bg-primary px-5 text-sm font-medium text-white hover:bg-primary/90"
             >
               Rechercher
             </button>
@@ -66,11 +66,11 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.32 }}
             className="mt-4 flex flex-wrap gap-2"
           >
-            <Link href="/boutique" className="rounded-full border bg-card px-3 py-1 text-xs hover:border-primary">Mode</Link>
-            <Link href="/boutique" className="rounded-full border bg-card px-3 py-1 text-xs hover:border-primary">Électronique</Link>
-            <Link href="/services" className="rounded-full border bg-card px-3 py-1 text-xs hover:border-primary">Dév web</Link>
-            <Link href="/ebooks" className="rounded-full border bg-card px-3 py-1 text-xs hover:border-primary">Business</Link>
-            <Link href="/boutique" className="rounded-full border bg-card px-3 py-1 text-xs hover:border-primary">Beauté</Link>
+            <Link href="/boutique" className="rounded-md border bg-card px-3 py-1 text-xs hover:border-primary">Mode</Link>
+            <Link href="/boutique" className="rounded-md border bg-card px-3 py-1 text-xs hover:border-primary">Électronique</Link>
+            <Link href="/services" className="rounded-md border bg-card px-3 py-1 text-xs hover:border-primary">Dév web</Link>
+            <Link href="/ebooks" className="rounded-md border bg-card px-3 py-1 text-xs hover:border-primary">Business</Link>
+            <Link href="/boutique" className="rounded-md border bg-card px-3 py-1 text-xs hover:border-primary">Beauté</Link>
           </motion.div>
 
           <motion.div
@@ -81,13 +81,13 @@ export function Hero() {
           >
             <Link
               href="/inscription?role=VENDEUR"
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background hover:opacity-90 transition"
+              className="inline-flex items-center gap-2 rounded-lg bg-foreground px-5 py-3 text-sm font-medium text-background hover:opacity-90 transition"
             >
               <Store size={16} /> Commencer à vendre
             </Link>
             <Link
               href="/boutique"
-              className="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-medium hover:bg-muted transition"
+              className="inline-flex items-center gap-2 rounded-lg border px-5 py-3 text-sm font-medium hover:bg-muted transition"
             >
               <TrendingUp size={16} /> Voir les tendances
             </Link>

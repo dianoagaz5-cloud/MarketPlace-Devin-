@@ -78,7 +78,7 @@ export function ChatWidget({
     return (
       <Link
         href="/connexion"
-        className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm hover:bg-muted"
+        className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm hover:bg-muted"
       >
         <MessageCircle size={16} /> Discuter avec le vendeur
       </Link>
@@ -89,7 +89,7 @@ export function ChatWidget({
     <>
       <button
         onClick={openChat}
-        className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm hover:bg-muted"
+        className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm hover:bg-muted"
       >
         <MessageCircle size={16} /> Discuter avec {sellerName}
       </button>
@@ -147,11 +147,11 @@ export function ChatWidget({
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Votre message…"
-                  className="flex-1 h-10 rounded-full border bg-muted/40 px-3 text-sm focus:bg-background"
+                  className="flex-1 h-10 rounded-lg border bg-muted/40 px-3 text-sm focus:bg-background"
                 />
                 <button
                   type="submit"
-                  className="h-10 w-10 rounded-full bg-primary text-white grid place-items-center disabled:opacity-50"
+                  className="h-10 w-10 rounded-lg bg-primary text-white grid place-items-center disabled:opacity-50"
                   disabled={!input.trim()}
                   aria-label="Envoyer"
                 >
