@@ -45,6 +45,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Données invalides." }, { status: 400 });
   }
   const { items, contact, payment } = parsed.data;
+  if (contact.email) {
+    contact.email = contact.email.toLowerCase();
+  }
 
   let user = await getCurrentUser();
   const isGuest = !user;

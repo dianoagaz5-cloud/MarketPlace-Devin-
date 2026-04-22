@@ -14,7 +14,8 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, error: "Identifiants invalides." }, { status: 400 });
   }
-  const { email, password } = parsed.data;
+  const email = parsed.data.email.toLowerCase();
+  const { password } = parsed.data;
 
   const user = await prisma.user.findUnique({ where: { email }, include: { seller: true } });
   if (!user || !(await verifyPassword(password, user.passwordHash))) {

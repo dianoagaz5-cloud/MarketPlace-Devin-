@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { EbookCard } from "@/components/common/ebook-card";
 
@@ -17,8 +18,8 @@ export default async function EbooksPage({
   const categories = await prisma.category.findMany({ where: { kind: "EBOOK" } });
   const selectedCat = catSlug ? categories.find((c) => c.slug === catSlug) : null;
 
-  const where = {
-    status: "APPROVED" as const,
+  const where: Prisma.EbookWhereInput = {
+    status: "APPROVED",
     ...(q && {
       OR: [
         { title: { contains: q, mode: "insensitive" } },

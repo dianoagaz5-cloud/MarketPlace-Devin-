@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { parseImages } from "@/lib/utils";
 import { ProductCard } from "@/components/common/product-card";
@@ -20,8 +21,8 @@ export default async function BoutiquePage({
   const categories = await prisma.category.findMany({ where: { kind: "PRODUCT" } });
   const selectedCat = catSlug ? categories.find((c) => c.slug === catSlug) : null;
 
-  const where = {
-    status: "APPROVED" as const,
+  const where: Prisma.ProductWhereInput = {
+    status: "APPROVED",
     ...(q && {
       OR: [
         { name: { contains: q, mode: "insensitive" } },

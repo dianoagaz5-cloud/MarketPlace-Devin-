@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { parseImages } from "@/lib/utils";
 import { ServiceCard } from "@/components/common/service-card";
@@ -18,8 +19,8 @@ export default async function ServicesPage({
   const categories = await prisma.category.findMany({ where: { kind: "SERVICE" } });
   const selectedCat = catSlug ? categories.find((c) => c.slug === catSlug) : null;
 
-  const where = {
-    status: "APPROVED" as const,
+  const where: Prisma.ServiceWhereInput = {
+    status: "APPROVED",
     ...(q && {
       OR: [
         { name: { contains: q, mode: "insensitive" } },

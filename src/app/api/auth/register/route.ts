@@ -21,7 +21,8 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, error: "Données invalides." }, { status: 400 });
   }
-  const { name, email, password, phone, city, role, shopName, shopDescription } = parsed.data;
+  const { name, password, phone, city, role, shopName, shopDescription } = parsed.data;
+  const email = parsed.data.email.toLowerCase();
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -29,37 +30,35 @@ export async function POST(req: Request) {
   }
 
   const passwordHash = await hashPassword(password);
-  const user = await prisma.user.create({
-    data: {
-      email,
-      name,
-      passwordHash,
-      phone,
-      city,
-      role,
-    },
-  });
 
-  if (role === "VENDEUR") {
-    const baseSlug = slugify(shopName || name);
-    const fallback = `boutique-${user.id.slice(0, 6)}`;
-    let slug = baseSlug || fallback;
-    let i = 1;
-    while (await prisma.seller.findUnique({ where: { slug } })) {
-      slug = `${baseSlug || fallback}-${i++}`;
-    }
-    await prisma.seller.create({
-      data: {
-        userId: user.id,
-        shopName: shopName || `Boutique de ${name}`,
-        slug,
-        description: shopDescription || "",
-        phone: phone || "",
-        city: city || "Cotonou",
-        status: "PENDING",
-      },
+  const user = await prisma.$transaction(async (tx) => {
+    const created = await tx.user.create({
+      data: { email, name, passwordHash, phone, city, role },
     });
-  }
+
+    if (role === "VENDEUR") {
+      const baseSlug = slugify(shopName || name);
+      const fallback = `boutique-${created.id.slice(0, 6)}`;
+      let slug = baseSlug || fallback;
+      let i = 1;
+      while (await tx.seller.findUnique({ where: { slug } })) {
+        slug = `${baseSlug || fallback}-${i++}`;
+      }
+      await tx.seller.create({
+        data: {
+          userId: created.id,
+          shopName: shopName || `Boutique de ${name}`,
+          slug,
+          description: shopDescription || "",
+          phone: phone || "",
+          city: city || "Cotonou",
+          status: "PENDING",
+        },
+      });
+    }
+
+    return created;
+  });
 
   await createSession(user);
 
