@@ -24,22 +24,30 @@ export async function POST(req: Request) {
   if (amount < settings.minPayoutAmount) {
     return NextResponse.json({ ok: false, error: `Minimum ${settings.minPayoutAmount} FCFA` }, { status: 400 });
   }
-  if (amount > seller.balance) {
-    return NextResponse.json({ ok: false, error: "Solde insuffisant" }, { status: 400 });
-  }
 
-  await prisma.$transaction([
-    prisma.seller.update({ where: { id: seller.id }, data: { balance: { decrement: amount } } }),
-    prisma.payout.create({
-      data: {
-        sellerId: seller.id,
-        amount,
-        provider,
-        phone,
-        status: "PENDING",
-      },
-    }),
-  ]);
+  try {
+    await prisma.$transaction(async (tx) => {
+      const dec = await tx.seller.updateMany({
+        where: { id: seller.id, balance: { gte: amount } },
+        data: { balance: { decrement: amount } },
+      });
+      if (dec.count === 0) throw new Error("INSUFFICIENT_BALANCE");
+      await tx.payout.create({
+        data: {
+          sellerId: seller.id,
+          amount,
+          provider,
+          phone,
+          status: "PENDING",
+        },
+      });
+    });
+  } catch (e) {
+    if (e instanceof Error && e.message === "INSUFFICIENT_BALANCE") {
+      return NextResponse.json({ ok: false, error: "Solde insuffisant" }, { status: 400 });
+    }
+    throw e;
+  }
 
   return NextResponse.json({ ok: true });
 }

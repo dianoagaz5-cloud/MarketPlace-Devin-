@@ -1,55 +1,42 @@
-# Plan de test — Marketplace MVP v1 (PR #1)
+# Test Plan — Marketplace MVP v1 (PR #1)
 
-## Ce qui change (intention du prompt user)
-Construire une marketplace multi-vendeurs Bénin complète en un seul PR : home moderne, catalogues produits/services/ebooks, panier + checkout FCFA avec mocks MoMo/Moov/Celtiis, dashboard vendeur, admin, téléchargement ebook sécurisé, chat intégré.
+## What changed
+Entire marketplace stack added: home, catalogs (produits / services / ebooks), fiche produit + panier, checkout avec paiements mock (MoMo/Moov/Celtiis), commission + crédit solde vendeur, téléchargement ebook sécurisé, chat, dashboards vendeur + admin. Round 2 de corrections: auth sur `/commande/[id]`, race condition ebook, collision order number, URL relative ebook, status 404 chat.
 
-## Environnement
-- Local : `http://localhost:3000` (dev server déjà démarré).
-- DB : SQLite seedée (`npm run db:reset` déjà exécuté).
-- Comptes utilisés :
-  - Client : `client@demo.bj / password`
-  - Vendeur : `awa@boutique.bj / password` (boutique approuvée, produits seedés)
-  - Admin : `admin@marketplace.bj / admin1234`
+Ref code:
+- `src/app/page.tsx` — home
+- `src/app/produit/[slug]/page.tsx` — fiche produit
+- `src/app/panier/page.tsx` — panier
+- `src/app/checkout/page.tsx` — checkout form
+- `src/app/api/orders/route.ts:49-79, 191-222, 225-227` — guest user + session + crédit solde vendeur
+- `src/app/commande/[id]/page.tsx:14-21` — auth + ownership check
+- `src/lib/commission.ts`, `src/lib/payment.ts` — commission + mock MoMo ref "MTN-…"
 
-## Flow principal — parcours acheteur end-to-end
-**Pourquoi ce flow** : c'est l'acte de valeur de la marketplace. S'il casse, la PR est inutile. Il touche : rendu home (dynamic data), catalogue, fiche produit, panier `localStorage`, checkout, calcul livraison FCFA, paiement mock, persistance commande, mise à jour stock + solde vendeur.
+## Primary flow (unique case testé)
+1. Ouvrir http://localhost:3001/ — attendu: header "Marketplace", bouton "Commencer à vendre", hero "Achetez et vendez facilement au Bénin".
+2. Cliquer sur la 1ère carte produit dans la section Produits populaires — URL doit devenir `/produit/<slug>`, la fiche affiche nom, prix en **FCFA** (pas de `€`, `$`), bouton "Ajouter au panier".
+3. Cliquer "Ajouter au panier" — badge panier en header doit afficher **1** (pas 0, pas vide).
+4. Cliquer icône panier → `/panier` — l'item ajouté apparaît avec son nom, quantité **1**, sous-total = prix produit en FCFA.
+5. Cliquer "Passer la commande" → `/checkout`. Remplir: prénom/nom, email `client@demo.bj`, téléphone `+22990000000`, adresse, ville **Cotonou**, mode de paiement **MTN MoMo**.
+6. Valider → POST `/api/orders` attendu 200 avec `{ ok: true, orderId }`. Redirection automatique vers `/commande/<orderId>`.
+7. Sur la page de confirmation — attendu:
+   - badge statut **"Payée"** (pas "En attente")
+   - total avec livraison **+1500 FCFA** (tarif Cotonou, cf. `src/lib/shipping.ts`)
+   - référence paiement contient préfixe **`MTN-`** (cf. `initiateMockPayment`)
+   - aucune erreur 403/404/500
 
-### Étapes & assertions
+## Régression ciblée (bug-fix round 2)
+- Avant le fix, `/commande/<orderId>` s'affichait sans auth. Test: après le flow, se déconnecter et réaccéder à la même URL — attendu: redirection vers `/connexion?next=/commande/<orderId>` (pas les détails de la commande).
 
-1. **Ouvrir `/`** (anonyme, fenêtre maximisée)
-   - Assertion : le header affiche "Marketplace", le hero contient le mot "Bénin" ou "FCFA", au moins **une carte produit** réelle s'affiche dans "Produits populaires" (preuve que `prisma.product.findMany` remonte des données seedées, pas un placeholder).
-   - Si cassé : la section serait vide ou afficherait un fallback.
+## Secondaire (preuve commission)
+- Se déconnecter, se reconnecter `awa@boutique.bj` / `password`, aller sur `/compte/vendeur`. Attendu: le solde est **strictement > 0 FCFA** et a augmenté vs la valeur seed (initialement 45 000 FCFA pour Awa).
 
-2. **Se connecter via `/connexion`** avec `client@demo.bj / password`
-   - Assertion : redirection vers `/` et le header montre un lien "Mon compte" (preuve que `createSession` + cookie JWT fonctionnent).
+## Éléments non testés
+- Tests unitaires / CI Vercel (connu: échec attendu car SQLite en dev — user a choisi Option A).
+- Téléchargement ebook, chat temps réel, dashboards admin: hors scope vidéo primaire.
 
-3. **Cliquer sur une carte produit** → atterrir sur `/produit/[slug]`
-   - Assertion : la page affiche le nom du produit, un prix **formaté en FCFA** (regex `\d+ FCFA` ou `\d+\s*F`), un bouton "Ajouter au panier" actif, et le panneau chat vendeur.
-
-4. **Cliquer "Ajouter au panier"**
-   - Assertion : l'icône panier du header affiche le badge **"1"** (preuve que le panier localStorage est bien hooké au header via event `storage`).
-
-5. **Aller sur `/panier`**
-   - Assertion : une ligne correspondant au produit ajouté, avec le **prix unitaire en FCFA** et un sous-total. Le bouton "Commander" est cliquable.
-
-6. **Cliquer "Commander"** → `/checkout`
-   - Assertion : formulaire avec sélection ville (Cotonou, Calavi, Porto-Novo, Ouidah, Parakou, Autre) ; sélection ville "Cotonou" met les frais de livraison à **1500 FCFA** visibles dans le résumé (preuve que la table de tarifs Bénin est branchée).
-   - Sélectionner paiement "MTN Mobile Money" ; entrer téléphone `96123456`.
-
-7. **Soumettre la commande**
-   - Assertion : redirection vers `/commande/[id]` et badge de statut **"Payée"** visible (preuve que `initiateMockPayment` a retourné `ok`, commande persistée avec `status=PAID`, et solde vendeur crédité).
-   - Assertion : la référence de paiement affichée contient "MTN-" (preuve que la ref vient bien du mock MoMo et pas d'un fallback générique).
-   - Si cassé : redirection échouerait, ou la commande resterait en `PENDING`, ou la ref serait vide.
-
-## Flow secondaire — solde vendeur reflète la vente
-**Pourquoi** : le prompt demande explicitement "revenus FCFA" côté vendeur et "commission configurable". Sans cette vérification, on ne peut pas affirmer que l'intégration commission→crédit solde marche.
-
-8. **Se déconnecter, se connecter avec `awa@boutique.bj / password`**, aller sur `/vendeur`
-   - Assertion : le KPI "Solde" affiche un montant en FCFA **strictement supérieur au solde seedé initial** (preuve que `seller.balance` a été incrémenté post-paiement avec `price * qty * (1 - commissionPct)`).
-   - Assertion : la liste "Commandes récentes" contient une entrée datée d'aujourd'hui avec statut "Payée".
-
-## Non testé dans cette passe (transparence)
-- Upload vidéo produit (placeholder only dans le MVP).
-- Téléchargement ebook sécurisé (token signé) — couvert par les API/types mais pas par la démo vidéo pour garder la durée courte.
-- Chat temps réel multi-onglets (polling 4s testable mais redondant avec la démo principale).
-- Deploy Vercel — **échoue par design** car SQLite ne tourne pas sur Vercel serverless. Nécessite bascule Postgres (option B refusée par l'user).
+## Serait-ce identique si cassé?
+- Si l'auth `/commande/[id]` n'existait pas, déconnecté on verrait quand même le détail → test discriminant.
+- Si la commission était cassée, le solde vendeur resterait à 45 000 FCFA → test discriminant.
+- Si FCFA n'était pas appliqué, on verrait un symbole `$` ou `€` → test discriminant.
+- Si le mock MoMo ne marquait pas "Payée", le badge afficherait "En attente" → test discriminant.

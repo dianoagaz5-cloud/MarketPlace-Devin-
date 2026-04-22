@@ -57,11 +57,18 @@ export async function POST(req: Request) {
     }
     const existing = await prisma.user.findUnique({
       where: { email: contact.email },
-      include: { seller: true },
+      select: { id: true },
     });
     if (existing) {
-      user = existing;
-    } else {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Un compte existe déjà avec cet email. Veuillez vous connecter pour commander.",
+        },
+        { status: 409 },
+      );
+    }
+    {
       const created = await prisma.user.create({
         data: {
           email: contact.email,
@@ -198,10 +205,20 @@ export async function POST(req: Request) {
         data: { balance: { increment: credit } },
       });
       if (r.kind === "PRODUCT") {
-        await prisma.product.update({
-          where: { id: r.id },
+        const dec = await prisma.product.updateMany({
+          where: { id: r.id, stock: { gte: r.quantity } },
           data: { stock: { decrement: r.quantity }, soldCount: { increment: r.quantity } },
         });
+        if (dec.count === 0) {
+          await prisma.order.update({
+            where: { id: order.id },
+            data: { status: "PENDING", note: `${contact.note ?? ""}\n[Stock insuffisant sur ${r.name} — commande à revalider]`.trim() },
+          });
+          return NextResponse.json(
+            { ok: false, error: `Stock insuffisant pour ${r.name}`, orderId: order.id },
+            { status: 409 },
+          );
+        }
       } else if (r.kind === "SERVICE") {
         await prisma.service.update({ where: { id: r.id }, data: { soldCount: { increment: 1 } } });
       } else {
