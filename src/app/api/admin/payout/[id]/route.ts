@@ -24,8 +24,14 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
       prisma.seller.update({ where: { id: payout.sellerId }, data: { balance: { increment: payout.amount } } }),
     ]);
   } else if (parsed.data.action === "approve") {
+    if (payout.status !== "PENDING") {
+      return NextResponse.json({ ok: false, error: "Statut invalide" }, { status: 400 });
+    }
     await prisma.payout.update({ where: { id }, data: { status: "APPROVED" } });
   } else {
+    if (payout.status !== "APPROVED") {
+      return NextResponse.json({ ok: false, error: "Statut invalide" }, { status: 400 });
+    }
     await prisma.payout.update({ where: { id }, data: { status: "PAID", processedAt: new Date() } });
   }
   return NextResponse.json({ ok: true });

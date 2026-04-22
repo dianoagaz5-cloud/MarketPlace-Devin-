@@ -46,7 +46,7 @@ export function ChatPanel({
     });
     const data = await res.json();
     if (data.ok) {
-      setMessages((prev) => [...prev, data.message]);
+      setMessages(data.messages);
       setText("");
     }
     setPending(false);

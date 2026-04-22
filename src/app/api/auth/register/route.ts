@@ -42,10 +42,11 @@ export async function POST(req: Request) {
 
   if (role === "VENDEUR") {
     const baseSlug = slugify(shopName || name);
-    let slug = baseSlug || `boutique-${user.id.slice(0, 6)}`;
+    const fallback = `boutique-${user.id.slice(0, 6)}`;
+    let slug = baseSlug || fallback;
     let i = 1;
     while (await prisma.seller.findUnique({ where: { slug } })) {
-      slug = `${baseSlug}-${i++}`;
+      slug = `${baseSlug || fallback}-${i++}`;
     }
     await prisma.seller.create({
       data: {
