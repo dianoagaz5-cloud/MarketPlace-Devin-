@@ -4,14 +4,15 @@ import { useEffect, useState } from "react";
 
 export function Countdown({ to, className }: { to: Date | string | number; className?: string }) {
   const target = typeof to === "object" ? to.getTime() : new Date(to).getTime();
-  const [now, setNow] = useState<number>(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
+    setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  const diff = Math.max(0, target - now);
+  const diff = now === null ? 0 : Math.max(0, target - now);
   const h = Math.floor(diff / 3_600_000);
   const m = Math.floor((diff % 3_600_000) / 60_000);
   const s = Math.floor((diff % 60_000) / 1000);

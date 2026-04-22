@@ -17,7 +17,7 @@ Ref code:
 2. Cliquer sur la 1ère carte produit dans la section Produits populaires — URL doit devenir `/produit/<slug>`, la fiche affiche nom, prix en **FCFA** (pas de `€`, `$`), bouton "Ajouter au panier".
 3. Cliquer "Ajouter au panier" — badge panier en header doit afficher **1** (pas 0, pas vide).
 4. Cliquer icône panier → `/panier` — l'item ajouté apparaît avec son nom, quantité **1**, sous-total = prix produit en FCFA.
-5. Cliquer "Passer la commande" → `/checkout`. Remplir: prénom/nom, email `client@demo.bj`, téléphone `+22990000000`, adresse, ville **Cotonou**, mode de paiement **MTN MoMo**.
+5. Cliquer "Passer la commande" → `/checkout`. Remplir: prénom/nom, **email inédit** (guest: `kodjo.visiteur+1@example.bj`), téléphone `+22997123456`, adresse, ville **Cotonou**, mode de paiement **MTN MoMo**. (Le serveur auto-crée un compte + session via `createSession` — cf. `src/app/api/orders/route.ts:242-244`.)
 6. Valider → POST `/api/orders` attendu 200 avec `{ ok: true, orderId }`. Redirection automatique vers `/commande/<orderId>`.
 7. Sur la page de confirmation — attendu:
    - badge statut **"Payée"** (pas "En attente")
