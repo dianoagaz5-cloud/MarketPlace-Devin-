@@ -95,7 +95,7 @@ export function ProductCard({ data }: { data: ProductCardData }) {
             aria-label="Ajouter au panier"
             onClick={(e) => {
               e.preventDefault();
-              add({
+              const added = add({
                 kind: "PRODUCT",
                 id: data.id,
                 slug: data.slug,
@@ -105,7 +105,8 @@ export function ProductCard({ data }: { data: ProductCardData }) {
                 sellerId: data.sellerId,
                 sellerName: data.sellerName,
               });
-              toast.success("Ajouté au panier");
+              if (added) toast.success("Ajouté au panier");
+              else toast.info("Déjà dans votre panier");
             }}
             className="rounded-full bg-primary p-2 text-primary-foreground hover:bg-primary/90 transition"
           >

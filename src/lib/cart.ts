@@ -51,15 +51,20 @@ export function useCart() {
     };
   }, []);
 
-  const add = useCallback((item: Omit<CartItem, "quantity">, qty = 1) => {
+  const add = useCallback((item: Omit<CartItem, "quantity">, qty = 1): boolean => {
     const current = read();
     const existing = current.find((i) => i.id === item.id && i.kind === item.kind);
     if (existing) {
-      if (item.kind === "PRODUCT") existing.quantity += qty;
+      if (item.kind === "PRODUCT") {
+        existing.quantity += qty;
+      } else {
+        return false;
+      }
     } else {
       current.push({ ...item, quantity: item.kind === "PRODUCT" ? qty : 1 });
     }
     write(current);
+    return true;
   }, []);
 
   const remove = useCallback((kind: CartItem["kind"], id: string) => {

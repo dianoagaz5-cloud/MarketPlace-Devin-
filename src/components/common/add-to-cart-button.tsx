@@ -50,10 +50,14 @@ export function AddToCartButton({
         size={size}
         className="flex-1 gap-2"
         onClick={() => {
-          add(item, qty);
-          toast.success(`${qty} × ${item.name} ajouté au panier`);
-          setAdded(true);
-          setTimeout(() => setAdded(false), 1500);
+          const added = add(item, qty);
+          if (added) {
+            toast.success(`${qty} × ${item.name} ajouté au panier`);
+            setAdded(true);
+            setTimeout(() => setAdded(false), 1500);
+          } else {
+            toast.info("Déjà dans votre panier");
+          }
         }}
       >
         {added ? <Check size={16} /> : <ShoppingCart size={16} />}

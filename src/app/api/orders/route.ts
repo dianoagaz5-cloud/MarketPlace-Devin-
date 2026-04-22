@@ -147,7 +147,10 @@ export async function POST(req: Request) {
     : CITY_FEES[contact.city] ?? 5000;
   const total = subtotal + shipping;
 
-  const commission = computeCommission(subtotal, settings.commissionPercent);
+  const commission = resolved.reduce(
+    (acc, r) => acc + computeCommission(r.unitPrice * r.quantity, settings.commissionPercent),
+    0,
+  );
 
   if (isGuest) {
     user = await prisma.user.create({
