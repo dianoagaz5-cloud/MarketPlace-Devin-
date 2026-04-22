@@ -30,6 +30,7 @@ export function buildOrderNumber(): string {
   const d = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
   const base = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
-  const rand = Math.floor(1000 + Math.random() * 9000);
-  return `MKT-${base}-${rand}`;
+  const rand = Math.floor(100000 + Math.random() * 900000);
+  const suffix = Date.now().toString(36).slice(-4).toUpperCase();
+  return `MKT-${base}-${rand}-${suffix}`;
 }

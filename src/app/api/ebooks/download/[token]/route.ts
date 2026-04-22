@@ -22,11 +22,17 @@ export async function GET(
     return NextResponse.json({ ok: false, error: "Nombre max de téléchargements atteint." }, { status: 410 });
   }
 
-  await prisma.ebookDownloadToken.update({
-    where: { id: tok.id },
+  const updated = await prisma.ebookDownloadToken.updateMany({
+    where: { id: tok.id, uses: { lt: tok.maxUses } },
     data: { uses: { increment: 1 } },
   });
+  if (updated.count === 0) {
+    return NextResponse.json({ ok: false, error: "Nombre max de téléchargements atteint." }, { status: 410 });
+  }
 
   // For MVP we redirect to the stored fileUrl. In production this would be a signed cloud URL.
-  return NextResponse.redirect(tok.ebook.fileUrl);
+  const origin = new URL(_req.url).origin;
+  const fileUrl = tok.ebook.fileUrl;
+  const absolute = /^https?:\/\//i.test(fileUrl) ? fileUrl : new URL(fileUrl, origin).toString();
+  return NextResponse.redirect(absolute);
 }

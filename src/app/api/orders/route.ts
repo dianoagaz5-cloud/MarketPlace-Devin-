@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser, hashPassword } from "@/lib/auth";
+import { getCurrentUser, hashPassword, createSession } from "@/lib/auth";
 import { getSettings, computeCommission } from "@/lib/commission";
 import { initiateMockPayment, type PaymentProvider } from "@/lib/payment";
 import { buildOrderNumber, parseImages } from "@/lib/utils";
@@ -47,6 +47,7 @@ export async function POST(req: Request) {
   const { items, contact, payment } = parsed.data;
 
   let user = await getCurrentUser();
+  let guestSessionCreated = false;
   if (!user) {
     if (!contact.email) {
       return NextResponse.json(
@@ -73,6 +74,7 @@ export async function POST(req: Request) {
         include: { seller: true },
       });
       user = created;
+      guestSessionCreated = true;
     }
   }
 
@@ -218,6 +220,10 @@ export async function POST(req: Request) {
         });
       }
     }
+  }
+
+  if (guestSessionCreated && user) {
+    await createSession(user);
   }
 
   return NextResponse.json({ ok: true, orderId: order.id, status });

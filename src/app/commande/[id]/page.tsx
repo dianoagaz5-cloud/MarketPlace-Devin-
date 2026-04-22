@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { CheckCircle2, Download, Package } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 import { formatFCFA } from "@/lib/money";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,11 +11,14 @@ export const dynamic = "force-dynamic";
 
 export default async function OrderConfirmationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const user = await getCurrentUser();
+  if (!user) redirect(`/connexion?next=/commande/${id}`);
   const order = await prisma.order.findUnique({
     where: { id },
     include: { items: true },
   });
   if (!order) notFound();
+  if (order.userId !== user.id && user.role !== "ADMIN") notFound();
 
   const ebookItems = order.items.filter((i) => i.kind === "EBOOK");
 

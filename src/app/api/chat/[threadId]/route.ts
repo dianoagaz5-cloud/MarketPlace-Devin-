@@ -24,7 +24,10 @@ export async function GET(
 ) {
   const { threadId } = await ctx.params;
   const g = await guard(threadId);
-  if (g.error) return NextResponse.json({ ok: false, error: g.error }, { status: g.error === "AUTH" ? 401 : 403 });
+  if (g.error) {
+    const status = g.error === "AUTH" ? 401 : g.error === "NOT_FOUND" ? 404 : 403;
+    return NextResponse.json({ ok: false, error: g.error }, { status });
+  }
   const messages = await prisma.message.findMany({
     where: { threadId },
     orderBy: { createdAt: "asc" },
@@ -46,7 +49,10 @@ export async function POST(
 ) {
   const { threadId } = await ctx.params;
   const g = await guard(threadId);
-  if (g.error) return NextResponse.json({ ok: false, error: g.error }, { status: g.error === "AUTH" ? 401 : 403 });
+  if (g.error) {
+    const status = g.error === "AUTH" ? 401 : g.error === "NOT_FOUND" ? 404 : 403;
+    return NextResponse.json({ ok: false, error: g.error }, { status });
+  }
 
   const body = (await req.json().catch(() => null)) as { body?: string } | null;
   const text = String(body?.body || "").trim();
