@@ -15,6 +15,8 @@ export async function POST(req: Request) {
   if (!user) return NextResponse.json({ ok: false, error: "Non autorisé" }, { status: 401 });
   const seller = await prisma.seller.findUnique({ where: { userId: user.id } });
   if (!seller) return NextResponse.json({ ok: false, error: "Profil vendeur manquant" }, { status: 400 });
+  if (seller.status !== "APPROVED")
+    return NextResponse.json({ ok: false, error: "Boutique non approuvée" }, { status: 403 });
 
   const parsed = schema.safeParse(await req.json());
   if (!parsed.success) return NextResponse.json({ ok: false, error: parsed.error.issues[0]?.message }, { status: 400 });

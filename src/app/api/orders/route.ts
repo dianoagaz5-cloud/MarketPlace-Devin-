@@ -241,24 +241,36 @@ export async function POST(req: Request) {
       });
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
-      if (msg.startsWith("STOCK_INSUFFICIENT:")) {
-        const name = msg.slice("STOCK_INSUFFICIENT:".length) || "article";
-        await prisma.order.update({
-          where: { id: order.id },
-          data: {
-            status: "PENDING",
-            note: `${contact.note ?? ""}\n[Stock insuffisant sur ${name} — commande à revalider]`.trim(),
-          },
-        });
-        if (isGuest && user) {
-          await createSession(user);
-        }
+      const isStock = msg.startsWith("STOCK_INSUFFICIENT:");
+      const name = isStock ? msg.slice("STOCK_INSUFFICIENT:".length) || "article" : null;
+      const noteSuffix = isStock
+        ? `[Stock insuffisant sur ${name} — commande à revalider]`
+        : `[Erreur de traitement — à revoir par l'admin]`;
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          status: "PENDING",
+          note: `${contact.note ?? ""}\n${noteSuffix}`.trim(),
+        },
+      });
+      if (isGuest && user) {
+        await createSession(user);
+      }
+      if (isStock) {
         return NextResponse.json(
           { ok: false, error: `Stock insuffisant pour ${name}`, orderId: order.id },
           { status: 409 },
         );
       }
-      throw e;
+      console.error("Order fulfillment failed", { orderId: order.id, msg });
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Erreur de traitement de la commande. Notre équipe a été notifiée.",
+          orderId: order.id,
+        },
+        { status: 500 },
+      );
     }
   }
 
