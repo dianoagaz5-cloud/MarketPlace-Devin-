@@ -161,7 +161,8 @@ async function callOpenAI(message: string, history: ChatMessage[]): Promise<stri
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20_000);
   try {
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    const baseUrl = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "");
+    const res = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         authorization: `Bearer ${key}`,
