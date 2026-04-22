@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ShoppingCart, Heart, Zap } from "lucide-react";
+import { ShoppingCart, Zap } from "lucide-react";
 import { formatFCFA } from "@/lib/money";
 import { StarRating } from "@/components/ui/star-rating";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
+import { FavoriteButton } from "./favorite-button";
 
 export type ProductCardData = {
   id: string;
@@ -55,14 +56,18 @@ export function ProductCard({ data }: { data: ProductCardData }) {
             <Zap size={12} /> Flash
           </Badge>
         )}
-        <button
-          type="button"
-          aria-label="Favoris"
-          onClick={(e) => { e.preventDefault(); toast.success("Ajouté aux favoris"); }}
-          className="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-white/90 p-2 shadow"
-        >
-          <Heart size={14} />
-        </button>
+        <FavoriteButton
+          item={{
+            kind: "PRODUCT",
+            id: data.id,
+            slug: data.slug,
+            name: data.name,
+            image: data.image,
+            price: data.price,
+            sellerName: data.sellerName,
+          }}
+          className="absolute right-2 bottom-2"
+        />
       </Link>
 
       <div className="p-3">

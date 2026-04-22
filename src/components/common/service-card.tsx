@@ -6,6 +6,7 @@ import { Clock } from "lucide-react";
 import { formatFCFA } from "@/lib/money";
 import { StarRating } from "@/components/ui/star-rating";
 import { Badge } from "@/components/ui/badge";
+import { FavoriteButton } from "./favorite-button";
 
 export type ServiceCardData = {
   id: string;
@@ -39,6 +40,18 @@ export function ServiceCard({ data }: { data: ServiceCardData }) {
         {data.negotiable && (
           <Badge variant="success" className="absolute left-2 top-2">Négociable</Badge>
         )}
+        <FavoriteButton
+          item={{
+            kind: "SERVICE",
+            id: data.id,
+            slug: data.slug,
+            name: data.name,
+            image: data.image,
+            price: data.price,
+            sellerName: data.sellerName,
+          }}
+          className="absolute right-2 bottom-2"
+        />
       </Link>
       <div className="p-4">
         <div className="flex items-center gap-2">

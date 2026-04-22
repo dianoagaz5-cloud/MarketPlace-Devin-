@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { BookOpen } from "lucide-react";
 import { formatFCFA } from "@/lib/money";
 import { StarRating } from "@/components/ui/star-rating";
+import { FavoriteButton } from "./favorite-button";
 
 export type EbookCardData = {
   id: string;
@@ -34,10 +35,22 @@ export function EbookCard({ data }: { data: EbookCardData }) {
           loading="lazy"
         />
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-medium">
+          <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-medium text-foreground">
             <BookOpen size={10} /> Ebook
           </span>
         </div>
+        <FavoriteButton
+          item={{
+            kind: "EBOOK",
+            id: data.id,
+            slug: data.slug,
+            name: data.title,
+            image: data.cover,
+            price: data.price,
+            sellerName: data.author,
+          }}
+          className="absolute right-2 top-2"
+        />
       </Link>
       <div className="p-3">
         <Link href={`/ebook/${data.slug}`}>

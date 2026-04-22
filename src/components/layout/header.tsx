@@ -18,6 +18,7 @@ import {
   LogOut,
   LayoutDashboard,
   Shield,
+  Heart,
 } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
@@ -209,6 +210,7 @@ export function Header() {
                           <div className="text-xs text-muted-foreground truncate">{me.email}</div>
                         </div>
                         <MenuLink href="/compte" icon={<LayoutDashboard size={14} />}>Mon compte</MenuLink>
+                        <MenuLink href="/compte/favoris" icon={<Heart size={14} />}>Mes favoris</MenuLink>
                         {me.hasSeller && (
                           <MenuLink href="/vendeur" icon={<Store size={14} />}>Dashboard vendeur</MenuLink>
                         )}
@@ -336,6 +338,7 @@ export function Header() {
                 {me ? (
                   <>
                     <Link href="/compte" className="block"><Button variant="outline" className="w-full">Mon compte</Button></Link>
+                    <Link href="/compte/favoris" className="block"><Button variant="outline" className="w-full">Mes favoris</Button></Link>
                     {me.hasSeller && <Link href="/vendeur" className="block"><Button className="w-full">Dashboard vendeur</Button></Link>}
                   </>
                 ) : (
