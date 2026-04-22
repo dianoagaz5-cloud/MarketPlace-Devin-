@@ -151,10 +151,14 @@ export async function POST(req: Request) {
     }
   }
 
-  const shipping = !hasPhysical ? 0 : subtotal >= 50_000 ? 0 : CITY_FEES[contact.city] ?? 5000;
+  const settings = await getSettings();
+  const shipping = !hasPhysical
+    ? 0
+    : subtotal >= settings.freeShippingFromXOF
+    ? 0
+    : CITY_FEES[contact.city] ?? 5000;
   const total = subtotal + shipping;
 
-  const settings = await getSettings();
   const commission = computeCommission(subtotal, settings.commissionPercent);
 
   const result = await initiateMockPayment({

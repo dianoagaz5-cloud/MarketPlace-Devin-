@@ -25,8 +25,9 @@ Ref code:
    - référence paiement contient préfixe **`MTN-`** (cf. `initiateMockPayment`)
    - aucune erreur 403/404/500
 
-## Régression ciblée (bug-fix round 2)
+## Régression ciblée (bug-fix round 2 + round 6)
 - Avant le fix, `/commande/<orderId>` s'affichait sans auth. Test: après le flow, se déconnecter et réaccéder à la même URL — attendu: redirection vers `/connexion?next=/commande/<orderId>` (pas les détails de la commande).
+- Round 6 (BUG 11): `/compte` déconnecté doit rediriger vers `/connexion?next=/compte` (pas un écran d'erreur 500). Test discriminant: sans le fix, le `requireUser()` throw donnait une page d'erreur générique.
 
 ## Secondaire (preuve commission)
 - Se déconnecter, se reconnecter `awa@boutique.bj` / `password`, aller sur `/compte/vendeur`. Attendu: le solde est **strictement > 0 FCFA** et a augmenté vs la valeur seed (initialement 45 000 FCFA pour Awa).

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { useCart } from "@/lib/cart";
@@ -10,8 +11,16 @@ import { Button } from "@/components/ui/button";
 export default function CartPage() {
   const { items, setQty, remove, subtotal, clear } = useCart();
 
-  const FREE_SHIPPING_THRESHOLD = 50_000;
-  const missing = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  const [freeShippingFromXOF, setFreeShippingFromXOF] = useState(50_000);
+  useEffect(() => {
+    fetch("/api/settings/public")
+      .then((r) => r.json())
+      .then((d) => {
+        if (typeof d?.freeShippingFromXOF === "number") setFreeShippingFromXOF(d.freeShippingFromXOF);
+      })
+      .catch(() => {});
+  }, []);
+  const missing = Math.max(0, freeShippingFromXOF - subtotal);
 
   return (
     <div className="container py-8">

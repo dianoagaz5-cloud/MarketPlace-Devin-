@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Shield } from "lucide-react";
@@ -37,13 +37,23 @@ export default function CheckoutPage() {
   });
   const [provider, setProvider] = useState(PAYMENT_PROVIDERS[0].value);
   const [pending, setPending] = useState(false);
+  const [freeShippingFromXOF, setFreeShippingFromXOF] = useState(50_000);
+
+  useEffect(() => {
+    fetch("/api/settings/public")
+      .then((r) => r.json())
+      .then((d) => {
+        if (typeof d?.freeShippingFromXOF === "number") setFreeShippingFromXOF(d.freeShippingFromXOF);
+      })
+      .catch(() => {});
+  }, []);
 
   const hasPhysical = items.some((i) => i.kind === "PRODUCT");
   const shippingFee = useMemo(() => {
     if (!hasPhysical) return 0;
-    if (subtotal >= 50_000) return 0;
+    if (subtotal >= freeShippingFromXOF) return 0;
     return CITIES.find((c) => c.v === city)?.fee ?? 0;
-  }, [hasPhysical, subtotal, city]);
+  }, [hasPhysical, subtotal, city, freeShippingFromXOF]);
   const total = subtotal + shippingFee;
 
   async function onSubmit(e: React.FormEvent) {
