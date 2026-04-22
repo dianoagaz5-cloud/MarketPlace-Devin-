@@ -20,7 +20,7 @@ const schema = z.object({
     phone: z.string().min(6),
     email: z.string().email().optional().or(z.literal("")),
     address: z.string().optional(),
-    city: z.string().min(2),
+    city: z.string().optional(),
     note: z.string().optional(),
   }),
   payment: z.object({
@@ -151,12 +151,19 @@ export async function POST(req: Request) {
     }
   }
 
+  if (hasPhysical && (!contact.city || contact.city.length < 2)) {
+    return NextResponse.json(
+      { ok: false, error: "Ville requise pour la livraison." },
+      { status: 400 },
+    );
+  }
+
   const settings = await getSettings();
   const shipping = !hasPhysical
     ? 0
     : subtotal >= settings.freeShippingFromXOF
     ? 0
-    : CITY_FEES[contact.city] ?? 5000;
+    : CITY_FEES[contact.city!] ?? 5000;
   const total = subtotal + shipping;
 
   const commission = resolved.reduce(
@@ -170,7 +177,7 @@ export async function POST(req: Request) {
         email: contact.email!,
         name: contact.fullName,
         phone: contact.phone,
-        city: contact.city,
+        city: hasPhysical ? contact.city : null,
         passwordHash: await hashPassword(crypto.randomBytes(16).toString("hex")),
         role: "CLIENT",
       },
@@ -186,112 +193,115 @@ export async function POST(req: Request) {
     phone: payment.phone,
     amount: total,
   });
-  const status = result.ok ? "PAID" : "PENDING";
 
-  const order = await prisma.order.create({
-    data: {
-      number: buildOrderNumber(),
-      userId: user.id,
-      status,
-      subtotal,
-      shipping,
-      commission,
-      total,
-      paymentProvider: payment.provider,
-      paymentRef: result.ref,
-      phone: contact.phone,
-      shippingCity: contact.city,
-      shippingAddress: contact.address ?? "",
-      note: contact.note,
-      items: {
-        create: resolved.map((r) => ({
-          kind: r.kind,
-          sellerId: r.sellerId,
-          productId: r.kind === "PRODUCT" ? r.id : null,
-          serviceId: r.kind === "SERVICE" ? r.id : null,
-          ebookId: r.kind === "EBOOK" ? r.id : null,
-          name: r.name,
-          image: r.image,
-          price: r.unitPrice,
-          quantity: r.quantity,
-        })),
-      },
+  const baseOrderData = {
+    number: buildOrderNumber(),
+    userId: user.id,
+    subtotal,
+    shipping,
+    commission,
+    total,
+    paymentProvider: payment.provider,
+    paymentRef: result.ref,
+    phone: contact.phone,
+    shippingCity: hasPhysical ? contact.city! : "",
+    shippingAddress: contact.address ?? "",
+    items: {
+      create: resolved.map((r) => ({
+        kind: r.kind,
+        sellerId: r.sellerId,
+        productId: r.kind === "PRODUCT" ? r.id : null,
+        serviceId: r.kind === "SERVICE" ? r.id : null,
+        ebookId: r.kind === "EBOOK" ? r.id : null,
+        name: r.name,
+        image: r.image,
+        price: r.unitPrice,
+        quantity: r.quantity,
+      })),
     },
-  });
+  };
 
-  if (status === "PAID") {
-    try {
-      await prisma.$transaction(async (tx) => {
-        for (const r of resolved) {
-          if (r.kind === "PRODUCT") {
-            const dec = await tx.product.updateMany({
-              where: { id: r.id, stock: { gte: r.quantity } },
-              data: { stock: { decrement: r.quantity }, soldCount: { increment: r.quantity } },
-            });
-            if (dec.count === 0) throw new Error(`STOCK_INSUFFICIENT:${r.name}`);
-          } else if (r.kind === "SERVICE") {
-            await tx.service.update({ where: { id: r.id }, data: { soldCount: { increment: 1 } } });
-          } else {
-            await tx.ebook.update({ where: { id: r.id }, data: { soldCount: { increment: 1 } } });
-            const token = crypto.randomBytes(24).toString("hex");
-            const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
-            await tx.ebookDownloadToken.create({
-              data: {
-                token,
-                ebookId: r.id,
-                orderId: order.id,
-                maxUses: 3,
-                expiresAt,
-              },
-            });
-          }
-          const itemTotal = r.unitPrice * r.quantity;
-          const itemCommission = computeCommission(itemTotal, settings.commissionPercent);
-          const credit = itemTotal - itemCommission;
-          await tx.seller.update({
-            where: { id: r.sellerId },
-            data: { balance: { increment: credit } },
+  if (!result.ok) {
+    const order = await prisma.order.create({
+      data: { ...baseOrderData, status: "PENDING", note: contact.note },
+    });
+    if (isGuest && user) await createSession(user);
+    return NextResponse.json({ ok: true, orderId: order.id, status: "PENDING" });
+  }
+
+  let orderId: string;
+  try {
+    const created = await prisma.$transaction(async (tx) => {
+      const order = await tx.order.create({
+        data: { ...baseOrderData, status: "PAID", note: contact.note },
+      });
+      for (const r of resolved) {
+        if (r.kind === "PRODUCT") {
+          const dec = await tx.product.updateMany({
+            where: { id: r.id, stock: { gte: r.quantity } },
+            data: { stock: { decrement: r.quantity }, soldCount: { increment: r.quantity } },
+          });
+          if (dec.count === 0) throw new Error(`STOCK_INSUFFICIENT:${r.name}`);
+        } else if (r.kind === "SERVICE") {
+          await tx.service.update({ where: { id: r.id }, data: { soldCount: { increment: 1 } } });
+        } else {
+          await tx.ebook.update({ where: { id: r.id }, data: { soldCount: { increment: 1 } } });
+          const token = crypto.randomBytes(24).toString("hex");
+          const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
+          await tx.ebookDownloadToken.create({
+            data: {
+              token,
+              ebookId: r.id,
+              orderId: order.id,
+              maxUses: 3,
+              expiresAt,
+            },
           });
         }
-      });
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "";
-      const isStock = msg.startsWith("STOCK_INSUFFICIENT:");
-      const name = isStock ? msg.slice("STOCK_INSUFFICIENT:".length) || "article" : null;
-      const noteSuffix = isStock
-        ? `[Stock insuffisant sur ${name} — commande à revalider]`
-        : `[Erreur de traitement — à revoir par l'admin]`;
-      await prisma.order.update({
-        where: { id: order.id },
-        data: {
-          status: "PENDING",
-          note: `${contact.note ?? ""}\n${noteSuffix}`.trim(),
-        },
-      });
-      if (isGuest && user) {
-        await createSession(user);
+        const itemTotal = r.unitPrice * r.quantity;
+        const itemCommission = computeCommission(itemTotal, settings.commissionPercent);
+        const credit = itemTotal - itemCommission;
+        await tx.seller.update({
+          where: { id: r.sellerId },
+          data: { balance: { increment: credit } },
+        });
       }
-      if (isStock) {
-        return NextResponse.json(
-          { ok: false, error: `Stock insuffisant pour ${name}`, orderId: order.id },
-          { status: 409 },
-        );
-      }
-      console.error("Order fulfillment failed", { orderId: order.id, msg });
+      return order;
+    });
+    orderId = created.id;
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    const isStock = msg.startsWith("STOCK_INSUFFICIENT:");
+    const name = isStock ? msg.slice("STOCK_INSUFFICIENT:".length) || "article" : null;
+    const noteSuffix = isStock
+      ? `[Stock insuffisant sur ${name} — commande à revalider]`
+      : `[Erreur de traitement — à revoir par l'admin]`;
+    const fallback = await prisma.order.create({
+      data: {
+        ...baseOrderData,
+        status: "PENDING",
+        note: `${contact.note ?? ""}\n${noteSuffix}`.trim(),
+      },
+    });
+    if (isGuest && user) await createSession(user);
+    if (isStock) {
       return NextResponse.json(
-        {
-          ok: false,
-          error: "Erreur de traitement de la commande. Notre équipe a été notifiée.",
-          orderId: order.id,
-        },
-        { status: 500 },
+        { ok: false, error: `Stock insuffisant pour ${name}`, orderId: fallback.id },
+        { status: 409 },
       );
     }
+    console.error("Order fulfillment failed", { orderId: fallback.id, msg });
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Erreur de traitement de la commande. Notre équipe a été notifiée.",
+        orderId: fallback.id,
+      },
+      { status: 500 },
+    );
   }
 
-  if (isGuest && user) {
-    await createSession(user);
-  }
+  if (isGuest && user) await createSession(user);
 
-  return NextResponse.json({ ok: true, orderId: order.id, status });
+  return NextResponse.json({ ok: true, orderId, status: "PAID" });
 }

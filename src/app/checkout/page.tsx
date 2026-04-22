@@ -69,8 +69,8 @@ export default function CheckoutPage() {
           fullName: form.fullName,
           phone: form.phone,
           email: form.email,
-          address: form.address,
-          city,
+          address: hasPhysical ? form.address : undefined,
+          city: hasPhysical ? city : undefined,
           note: form.note,
         },
         payment: {
