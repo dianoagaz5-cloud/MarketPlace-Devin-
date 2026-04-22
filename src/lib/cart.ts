@@ -55,9 +55,9 @@ export function useCart() {
     const current = read();
     const existing = current.find((i) => i.id === item.id && i.kind === item.kind);
     if (existing) {
-      existing.quantity += qty;
+      if (item.kind === "PRODUCT") existing.quantity += qty;
     } else {
-      current.push({ ...item, quantity: qty });
+      current.push({ ...item, quantity: item.kind === "PRODUCT" ? qty : 1 });
     }
     write(current);
   }, []);
@@ -68,7 +68,9 @@ export function useCart() {
 
   const setQty = useCallback((kind: CartItem["kind"], id: string, qty: number) => {
     const current = read().map((i) =>
-      i.kind === kind && i.id === id ? { ...i, quantity: Math.max(1, qty) } : i,
+      i.kind === kind && i.id === id
+        ? { ...i, quantity: kind === "PRODUCT" ? Math.max(1, qty) : 1 }
+        : i,
     );
     write(current);
   }, []);
