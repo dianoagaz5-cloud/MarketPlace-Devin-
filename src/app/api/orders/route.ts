@@ -196,46 +196,57 @@ export async function POST(req: Request) {
   });
 
   if (status === "PAID") {
-    for (const r of resolved) {
-      const itemTotal = r.unitPrice * r.quantity;
-      const itemCommission = computeCommission(itemTotal, settings.commissionPercent);
-      const credit = itemTotal - itemCommission;
-      await prisma.seller.update({
-        where: { id: r.sellerId },
-        data: { balance: { increment: credit } },
-      });
-      if (r.kind === "PRODUCT") {
-        const dec = await prisma.product.updateMany({
-          where: { id: r.id, stock: { gte: r.quantity } },
-          data: { stock: { decrement: r.quantity }, soldCount: { increment: r.quantity } },
-        });
-        if (dec.count === 0) {
-          await prisma.order.update({
-            where: { id: order.id },
-            data: { status: "PENDING", note: `${contact.note ?? ""}\n[Stock insuffisant sur ${r.name} — commande à revalider]`.trim() },
+    try {
+      await prisma.$transaction(async (tx) => {
+        for (const r of resolved) {
+          if (r.kind === "PRODUCT") {
+            const dec = await tx.product.updateMany({
+              where: { id: r.id, stock: { gte: r.quantity } },
+              data: { stock: { decrement: r.quantity }, soldCount: { increment: r.quantity } },
+            });
+            if (dec.count === 0) throw new Error(`STOCK_INSUFFICIENT:${r.name}`);
+          } else if (r.kind === "SERVICE") {
+            await tx.service.update({ where: { id: r.id }, data: { soldCount: { increment: 1 } } });
+          } else {
+            await tx.ebook.update({ where: { id: r.id }, data: { soldCount: { increment: 1 } } });
+            const token = crypto.randomBytes(24).toString("hex");
+            const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
+            await tx.ebookDownloadToken.create({
+              data: {
+                token,
+                ebookId: r.id,
+                orderId: order.id,
+                maxUses: 3,
+                expiresAt,
+              },
+            });
+          }
+          const itemTotal = r.unitPrice * r.quantity;
+          const itemCommission = computeCommission(itemTotal, settings.commissionPercent);
+          const credit = itemTotal - itemCommission;
+          await tx.seller.update({
+            where: { id: r.sellerId },
+            data: { balance: { increment: credit } },
           });
-          return NextResponse.json(
-            { ok: false, error: `Stock insuffisant pour ${r.name}`, orderId: order.id },
-            { status: 409 },
-          );
         }
-      } else if (r.kind === "SERVICE") {
-        await prisma.service.update({ where: { id: r.id }, data: { soldCount: { increment: 1 } } });
-      } else {
-        await prisma.ebook.update({ where: { id: r.id }, data: { soldCount: { increment: 1 } } });
-        // Generate secure download token
-        const token = crypto.randomBytes(24).toString("hex");
-        const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
-        await prisma.ebookDownloadToken.create({
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      if (msg.startsWith("STOCK_INSUFFICIENT:")) {
+        const name = msg.slice("STOCK_INSUFFICIENT:".length) || "article";
+        await prisma.order.update({
+          where: { id: order.id },
           data: {
-            token,
-            ebookId: r.id,
-            orderId: order.id,
-            maxUses: 3,
-            expiresAt,
+            status: "PENDING",
+            note: `${contact.note ?? ""}\n[Stock insuffisant sur ${name} — commande à revalider]`.trim(),
           },
         });
+        return NextResponse.json(
+          { ok: false, error: `Stock insuffisant pour ${name}`, orderId: order.id },
+          { status: 409 },
+        );
       }
+      throw e;
     }
   }
 
