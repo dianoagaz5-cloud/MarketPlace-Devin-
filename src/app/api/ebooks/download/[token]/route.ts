@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET(
   _req: Request,
@@ -9,11 +10,19 @@ export async function GET(
 
   const tok = await prisma.ebookDownloadToken.findUnique({
     where: { token },
-    include: { ebook: true },
+    include: { ebook: true, order: { select: { userId: true } } },
   });
 
   if (!tok) {
     return NextResponse.json({ ok: false, error: "Lien invalide." }, { status: 404 });
+  }
+
+  const user = await getCurrentUser();
+  if (!user || user.id !== tok.order.userId) {
+    return NextResponse.json(
+      { ok: false, error: "Connectez-vous avec le compte acheteur pour télécharger." },
+      { status: 401 },
+    );
   }
   if (tok.expiresAt < new Date()) {
     return NextResponse.json({ ok: false, error: "Lien expiré." }, { status: 410 });

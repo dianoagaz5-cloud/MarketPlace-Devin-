@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, hashPassword, createSession } from "@/lib/auth";
 import { getSettings, computeCommission } from "@/lib/commission";
@@ -172,17 +173,30 @@ export async function POST(req: Request) {
   );
 
   if (isGuest) {
-    user = await prisma.user.create({
-      data: {
-        email: contact.email!,
-        name: contact.fullName,
-        phone: contact.phone,
-        city: hasPhysical ? contact.city : null,
-        passwordHash: await hashPassword(crypto.randomBytes(16).toString("hex")),
-        role: "CLIENT",
-      },
-      include: { seller: true },
-    });
+    try {
+      user = await prisma.user.create({
+        data: {
+          email: contact.email!,
+          name: contact.fullName,
+          phone: contact.phone,
+          city: hasPhysical ? contact.city : null,
+          passwordHash: await hashPassword(crypto.randomBytes(16).toString("hex")),
+          role: "CLIENT",
+        },
+        include: { seller: true },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "Un compte existe déjà avec cet email. Veuillez vous connecter pour commander.",
+          },
+          { status: 409 },
+        );
+      }
+      throw e;
+    }
   }
   if (!user) {
     return NextResponse.json({ ok: false, error: "Utilisateur introuvable." }, { status: 500 });
