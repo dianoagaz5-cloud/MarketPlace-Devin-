@@ -1,15 +1,16 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Download, BookOpen } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
 export default async function DownloadPage({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await params;
-  const user = await requireUser();
+  const user = await getCurrentUser();
+  if (!user) redirect(`/connexion?next=/compte/telecharger/${orderId}`);
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: {

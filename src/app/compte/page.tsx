@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Package } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { formatFCFA } from "@/lib/money";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,8 @@ import { Button } from "@/components/ui/button";
 export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
-  const user = await requireUser();
+  const user = await getCurrentUser();
+  if (!user) redirect("/connexion?next=/compte");
   const orders = await prisma.order.findMany({
     where: { userId: user.id },
     include: { items: true },

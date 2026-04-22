@@ -102,7 +102,7 @@ export default function CheckoutPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Nom complet" id="fullName" value={form.fullName} onChange={(v) => setForm((s) => ({ ...s, fullName: v }))} required />
                 <Field label="Téléphone" id="phone" value={form.phone} onChange={(v) => setForm((s) => ({ ...s, phone: v }))} placeholder="+229 97 00 00 00" required />
-                <Field label="Email" id="email" type="email" value={form.email} onChange={(v) => setForm((s) => ({ ...s, email: v }))} className="sm:col-span-2" />
+                <Field label="Email" id="email" type="email" value={form.email} onChange={(v) => setForm((s) => ({ ...s, email: v }))} required className="sm:col-span-2" />
                 <div className="sm:col-span-2 space-y-1.5">
                   <Label>Ville</Label>
                   <Select value={city} onChange={(e) => setCity(e.target.value)}>
