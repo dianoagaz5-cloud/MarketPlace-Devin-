@@ -8,7 +8,7 @@ import { HorizontalScroll } from "@/components/common/horizontal-scroll";
 
 export async function FlashSalesSection() {
   const items = await prisma.product.findMany({
-    where: { status: "APPROVED", flashUntil: { gt: new Date() } },
+    where: { status: "APPROVED", seller: { status: "APPROVED" }, flashUntil: { gt: new Date() } },
     include: { seller: true },
     take: 10,
     orderBy: { flashUntil: "asc" },

@@ -7,7 +7,7 @@ export async function CategoriesSection() {
   const catsWithCounts = await Promise.all(
     cats.map(async (c) => ({
       ...c,
-      count: await prisma.product.count({ where: { categoryId: c.id, status: "APPROVED" } }),
+      count: await prisma.product.count({ where: { categoryId: c.id, status: "APPROVED", seller: { status: "APPROVED" } } }),
     })),
   );
 

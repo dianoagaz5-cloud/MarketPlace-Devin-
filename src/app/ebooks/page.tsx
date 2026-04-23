@@ -20,6 +20,7 @@ export default async function EbooksPage({
 
   const where: Prisma.EbookWhereInput = {
     status: "APPROVED",
+    seller: { status: "APPROVED" },
     ...(q && {
       OR: [
         { title: { contains: q, mode: "insensitive" } },

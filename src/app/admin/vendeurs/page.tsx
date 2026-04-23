@@ -41,6 +41,7 @@ export default async function AdminVendeursPage() {
                   {s.status === "APPROVED" && <Badge variant="success">Approuvé</Badge>}
                   {s.status === "PENDING" && <Badge variant="warning">En attente</Badge>}
                   {s.status === "REJECTED" && <Badge variant="destructive">Refusé</Badge>}
+                  {s.status === "SUSPENDED" && <Badge variant="warning">Suspendu</Badge>}
                 </td>
                 <td className="px-3 py-2 text-right">
                   <AdminActionButtons resource="seller" id={s.id} status={s.status} />

@@ -23,7 +23,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       reviews: { include: { user: true }, orderBy: { createdAt: "desc" }, take: 5 },
     },
   });
-  if (!product || product.status !== "APPROVED") notFound();
+  if (!product || product.status !== "APPROVED" || product.seller.status !== "APPROVED") notFound();
 
   const images = parseImages(product.images);
   const discount =
@@ -32,7 +32,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       : null;
 
   const related = await prisma.product.findMany({
-    where: { categoryId: product.categoryId, status: "APPROVED", NOT: { id: product.id } },
+    where: { categoryId: product.categoryId, status: "APPROVED", seller: { status: "APPROVED" }, NOT: { id: product.id } },
     include: { seller: true },
     take: 5,
   });

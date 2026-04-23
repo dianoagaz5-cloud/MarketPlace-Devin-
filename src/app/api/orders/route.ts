@@ -101,8 +101,8 @@ export async function POST(req: Request) {
 
   for (const it of items) {
     if (it.kind === "PRODUCT") {
-      const p = await prisma.product.findUnique({ where: { id: it.id } });
-      if (!p || p.status !== "APPROVED") {
+      const p = await prisma.product.findUnique({ where: { id: it.id }, include: { seller: true } });
+      if (!p || p.status !== "APPROVED" || p.seller.status !== "APPROVED") {
         return NextResponse.json({ ok: false, error: `Produit indisponible` }, { status: 400 });
       }
       if (p.stock < it.quantity) {
@@ -120,8 +120,8 @@ export async function POST(req: Request) {
       subtotal += p.price * it.quantity;
       hasPhysical = true;
     } else if (it.kind === "SERVICE") {
-      const s = await prisma.service.findUnique({ where: { id: it.id } });
-      if (!s || s.status !== "APPROVED") {
+      const s = await prisma.service.findUnique({ where: { id: it.id }, include: { seller: true } });
+      if (!s || s.status !== "APPROVED" || s.seller.status !== "APPROVED") {
         return NextResponse.json({ ok: false, error: `Service indisponible` }, { status: 400 });
       }
       resolved.push({
@@ -135,8 +135,8 @@ export async function POST(req: Request) {
       });
       subtotal += s.price;
     } else {
-      const e = await prisma.ebook.findUnique({ where: { id: it.id } });
-      if (!e || e.status !== "APPROVED") {
+      const e = await prisma.ebook.findUnique({ where: { id: it.id }, include: { seller: true } });
+      if (!e || e.status !== "APPROVED" || e.seller.status !== "APPROVED") {
         return NextResponse.json({ ok: false, error: `Ebook indisponible` }, { status: 400 });
       }
       resolved.push({

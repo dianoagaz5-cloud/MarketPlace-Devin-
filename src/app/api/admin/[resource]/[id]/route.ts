@@ -4,7 +4,22 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
 
-const schema = z.object({ action: z.enum(["approve", "reject"]) });
+const schema = z.object({
+  action: z.enum(["approve", "reject", "suspend", "unsuspend"]),
+});
+
+function nextStatus(action: z.infer<typeof schema>["action"]): string {
+  switch (action) {
+    case "approve":
+      return "APPROVED";
+    case "reject":
+      return "REJECTED";
+    case "suspend":
+      return "SUSPENDED";
+    case "unsuspend":
+      return "APPROVED";
+  }
+}
 
 export async function POST(
   req: Request,
@@ -15,7 +30,7 @@ export async function POST(
   const { resource, id } = await ctx.params;
   const parsed = schema.safeParse(await req.json());
   if (!parsed.success) return NextResponse.json({ ok: false, error: "Action invalide" }, { status: 400 });
-  const status = parsed.data.action === "approve" ? "APPROVED" : "REJECTED";
+  const status = nextStatus(parsed.data.action);
 
   try {
     if (resource === "seller") {

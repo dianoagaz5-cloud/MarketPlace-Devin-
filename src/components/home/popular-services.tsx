@@ -5,7 +5,7 @@ import { SectionHeading } from "@/components/common/section-heading";
 
 export async function PopularServicesSection() {
   const services = await prisma.service.findMany({
-    where: { status: "APPROVED" },
+    where: { status: "APPROVED", seller: { status: "APPROVED" } },
     include: { seller: true },
     orderBy: { soldCount: "desc" },
     take: 6,

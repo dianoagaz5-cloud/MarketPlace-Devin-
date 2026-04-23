@@ -97,6 +97,7 @@ function Table({
                 {i.status === "APPROVED" && <Badge variant="success">OK</Badge>}
                 {i.status === "PENDING" && <Badge variant="warning">En attente</Badge>}
                 {i.status === "REJECTED" && <Badge variant="destructive">Refusé</Badge>}
+                {i.status === "SUSPENDED" && <Badge variant="warning">Suspendu</Badge>}
               </td>
               <td className="px-3 py-2 text-right">
                 <AdminActionButtons resource={kind} id={i.id} status={i.status} />

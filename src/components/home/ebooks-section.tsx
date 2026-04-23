@@ -4,7 +4,7 @@ import { SectionHeading } from "@/components/common/section-heading";
 
 export async function EbooksSection() {
   const ebooks = await prisma.ebook.findMany({
-    where: { status: "APPROVED" },
+    where: { status: "APPROVED", seller: { status: "APPROVED" } },
     orderBy: { featured: "desc" },
     take: 5,
   });

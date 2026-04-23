@@ -23,6 +23,7 @@ export default async function BoutiquePage({
 
   const where: Prisma.ProductWhereInput = {
     status: "APPROVED",
+    seller: { status: "APPROVED" },
     ...(q && {
       OR: [
         { name: { contains: q, mode: "insensitive" } },

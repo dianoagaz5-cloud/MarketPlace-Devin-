@@ -15,7 +15,7 @@ export default async function EbookPage({ params }: { params: Promise<{ slug: st
     where: { slug },
     include: { seller: true, category: true },
   });
-  if (!ebook || ebook.status !== "APPROVED") notFound();
+  if (!ebook || ebook.status !== "APPROVED" || ebook.seller.status !== "APPROVED") notFound();
 
   return (
     <div className="container py-8">

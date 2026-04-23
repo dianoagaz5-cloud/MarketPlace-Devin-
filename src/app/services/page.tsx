@@ -21,6 +21,7 @@ export default async function ServicesPage({
 
   const where: Prisma.ServiceWhereInput = {
     status: "APPROVED",
+    seller: { status: "APPROVED" },
     ...(q && {
       OR: [
         { name: { contains: q, mode: "insensitive" } },

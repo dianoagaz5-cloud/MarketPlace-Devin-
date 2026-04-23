@@ -18,7 +18,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
     where: { slug },
     include: { seller: true, category: true },
   });
-  if (!service || service.status !== "APPROVED") notFound();
+  if (!service || service.status !== "APPROVED" || service.seller.status !== "APPROVED") notFound();
   const images = parseImages(service.images);
 
   return (
