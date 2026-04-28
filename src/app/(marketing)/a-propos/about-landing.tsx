@@ -297,19 +297,19 @@ export function AboutLanding() {
       >
         <FadeUp>
           <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
-            <Sparkles size={12} /> Disponible maintenant — Achetez et vendez au Bénin
+            <Sparkles size={12} /> Disponible maintenant. Achetez et vendez au Bénin
           </span>
         </FadeUp>
         <FadeUp delay={0.1}>
           <h1 className="mt-5 text-5xl md:text-7xl font-bold tracking-tight leading-[0.95]">
             Créez votre boutique.
             <br />
-            <span className="gradient-text">On s&apos;occupe du reste.</span>
+            <span className="text-primary">On s&apos;occupe du reste.</span>
           </h1>
         </FadeUp>
         <FadeUp delay={0.2}>
           <p className="mt-5 max-w-2xl text-base md:text-lg text-muted-foreground leading-relaxed">
-            Marketplace connecte acheteurs et vendeurs partout au Bénin — produits,
+            Marketplace connecte acheteurs et vendeurs partout au Bénin : produits,
             services et ebooks. Paiements MTN MoMo, Moov Money et Celtiis Cash. Une
             seule plateforme, pour tout le commerce local.
           </p>
@@ -336,7 +336,7 @@ export function AboutLanding() {
               { v: "8%", l: "Commission" },
             ].map((s) => (
               <div key={s.l}>
-                <div className="text-2xl md:text-3xl font-bold gradient-text">{s.v}</div>
+                <div className="text-2xl md:text-3xl font-bold text-primary">{s.v}</div>
                 <div className="text-xs text-muted-foreground mt-0.5">{s.l}</div>
               </div>
             ))}
@@ -368,7 +368,7 @@ export function AboutLanding() {
                 <>
                   Tout pour gérer
                   <br />
-                  <span className="gradient-text">votre commerce.</span>
+                  <span className="text-primary">votre commerce.</span>
                 </>
               }
               subtitle="Un seul endroit pour voir vos commandes, vos revenus et vos clients. Fini de jongler entre WhatsApp, un cahier et votre téléphone."
@@ -402,10 +402,10 @@ export function AboutLanding() {
                 <>
                   Encaissez comme
                   <br />
-                  <span className="gradient-text">vos clients paient.</span>
+                  <span className="text-primary">vos clients paient.</span>
                 </>
               }
-              subtitle="Vos clients paient avec leur téléphone — MTN, Moov, Celtiis. Pas de carte bancaire, pas de friction. L'argent arrive sur votre solde dès confirmation."
+              subtitle="Vos clients paient avec leur téléphone : MTN, Moov, Celtiis. Pas de carte bancaire, pas de friction. L'argent arrive sur votre solde dès confirmation."
             />
             <ul className="mt-6 space-y-3 text-sm">
               {[
@@ -436,7 +436,7 @@ export function AboutLanding() {
                 <>
                   Chaque commande,
                   <br />
-                  <span className="gradient-text">suivie de A à Z.</span>
+                  <span className="text-primary">suivie de A à Z.</span>
                 </>
               }
               subtitle="Finies les commandes perdues dans WhatsApp. Chaque vente a sa fiche : qui a commandé, ce qu'il a pris, où ça en est. Votre client est informé à chaque étape."
@@ -472,7 +472,7 @@ export function AboutLanding() {
                 <>
                   Tout ce dont vous avez besoin.
                   <br />
-                  <span className="gradient-text">Rien de superflu.</span>
+                  <span className="text-primary">Rien de superflu.</span>
                 </>
               }
             />
@@ -487,7 +487,7 @@ export function AboutLanding() {
               {
                 icon: <Package size={20} />,
                 title: "Produits, services, ebooks",
-                desc: "Vendez du physique, des prestations ou des fichiers — stock et livraison gérés automatiquement.",
+                desc: "Vendez du physique, des prestations ou des fichiers. Stock et livraison gérés automatiquement.",
               },
               {
                 icon: <Smartphone size={20} />,
@@ -550,10 +550,10 @@ export function AboutLanding() {
               <>
                 Votre commerce,
                 <br />
-                <span className="gradient-text">en sécurité.</span>
+                <span className="text-primary">en sécurité.</span>
               </>
             }
-            subtitle="Marketplace est conçue pour que vous puissiez vous concentrer sur votre business — pas sur la logistique ou les problèmes de paiement."
+            subtitle="Marketplace est conçue pour que vous puissiez vous concentrer sur votre business, pas sur la logistique ou les problèmes de paiement."
           />
         </FadeUp>
         <div className="mt-12 grid gap-6 md:grid-cols-2">
@@ -571,7 +571,7 @@ export function AboutLanding() {
             {
               icon: <Briefcase size={22} />,
               title: "Pensé pour le Bénin",
-              desc: "Les opérateurs, les villes, les prix de livraison, les habitudes d'achat — tout est calibré pour Cotonou et le Bénin.",
+              desc: "Les opérateurs, les villes, les prix de livraison, les habitudes d'achat : tout est calibré pour Cotonou et le Bénin.",
             },
             {
               icon: <CircleDollarSign size={22} />,
@@ -614,7 +614,7 @@ export function AboutLanding() {
               },
               {
                 q: "Quelle commission Marketplace prélève-t-elle ?",
-                a: "8% sur chaque vente. Pas de frais d'inscription, pas d'abonnement, pas de frais cachés — vous ne payez que quand vous vendez.",
+                a: "8% sur chaque vente. Pas de frais d'inscription, pas d'abonnement, pas de frais cachés. Vous ne payez que quand vous vendez.",
               },
               {
                 q: "Combien de temps pour ouvrir ma boutique ?",
@@ -652,7 +652,7 @@ export function AboutLanding() {
           <h2 className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.05]">
             Prêt à lancer
             <br />
-            <span className="gradient-text">votre boutique ?</span>
+            <span className="text-primary">votre boutique ?</span>
           </h2>
           <p className="mt-5 mx-auto max-w-xl text-muted-foreground">
             Créez votre compte gratuitement et commencez à vendre dès aujourd&apos;hui.

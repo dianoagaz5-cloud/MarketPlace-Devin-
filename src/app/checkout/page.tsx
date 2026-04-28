@@ -118,7 +118,7 @@ export default function CheckoutPage() {
                   <Select value={city} onChange={(e) => setCity(e.target.value)}>
                     {CITIES.map((c) => (
                       <option key={c.v} value={c.v}>
-                        {c.v} — {c.fee} FCFA
+                        {c.v} · {c.fee} FCFA
                       </option>
                     ))}
                   </Select>

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
@@ -10,7 +10,24 @@ import { ServiceWorkerRegister } from "@/components/common/sw-register";
 import { InstallPrompt } from "@/components/common/install-prompt";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const sans = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const display = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+  weight: ["500", "600", "700", "800"],
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -55,8 +72,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: light)", color: "#f8f4ec" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e1116" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -73,7 +90,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className={`${inter.variable} font-sans pb-16 md:pb-0`}>
+      <body
+        className={`${sans.variable} ${display.variable} ${mono.variable} font-sans pb-16 md:pb-0`}
+      >
         <ThemeProvider>
           <Header />
           <main className="min-h-[60vh]">{children}</main>

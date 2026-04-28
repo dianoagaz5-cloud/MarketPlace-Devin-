@@ -88,11 +88,11 @@ export function Header() {
           </button>
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent grid place-items-center text-white font-bold text-sm shadow-sm">
+          <Link href="/" className="flex items-center gap-2.5 shrink-0">
+            <div className="grid h-8 w-8 place-items-center rounded-lg bg-foreground text-background font-bold text-sm shadow-soft">
               M
             </div>
-            <span className="text-lg font-bold tracking-tight">Marketplace</span>
+            <span className="font-display text-lg font-bold tracking-tight">Marketplace</span>
           </Link>
 
           {/* Search */}

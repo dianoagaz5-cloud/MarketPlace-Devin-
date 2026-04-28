@@ -54,9 +54,24 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl: "calc(var(--radius) + 4px)",
+        "2xl": "calc(var(--radius) + 10px)",
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
+      },
+      letterSpacing: {
+        tightest: "-0.04em",
+        tighter: "-0.025em",
+      },
+      transitionTimingFunction: {
+        smooth: "cubic-bezier(0.32, 0.72, 0, 1)",
+      },
+      boxShadow: {
+        soft: "0 1px 2px hsl(222 24% 12% / 0.04), 0 8px 24px -16px hsl(222 24% 12% / 0.12)",
+        lift: "0 18px 40px -24px hsl(222 24% 12% / 0.22)",
       },
     },
   },

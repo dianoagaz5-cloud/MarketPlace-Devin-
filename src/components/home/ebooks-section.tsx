@@ -13,7 +13,7 @@ export async function EbooksSection() {
     <section className="container my-10">
       <SectionHeading
         title="Ebooks recommandés"
-        subtitle="Apprendre, entreprendre, grandir — en PDF"
+        subtitle="Apprendre, entreprendre, grandir, en PDF"
         href="/ebooks"
       />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
